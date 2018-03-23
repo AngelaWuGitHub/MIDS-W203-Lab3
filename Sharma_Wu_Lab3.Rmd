@@ -1,0 +1,54 @@
+---
+title: "Lab 3 (Bhuvnesh Sharma, Weixin Wu)"
+author: "Bhuvnesh Sharma, Weixin Wu"
+date: "March 22, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+crimeData <- read.csv("crime_v2.csv")
+summary(crimeData)
+```
+
+
+# Data Cleansing
+As shown in the summary table, there are 6 NA's in every variable. 
+After reviewing the data, we found that all NA's are in 6 rows, so we remove those rows as they do not provide any information.
+```{r}
+crimeData2 <- crimeData[complete.cases(crimeData),]
+```
+
+Variable 'prbconv' is incorrectly displayed as a text field. We convert it to numermic.
+```{r}
+crimeData2$prbconv2 <- as.numeric(crimeData2$prbconv)
+summary(crimeData2$prbconv2)
+```
+
+
+# EDA
+```{r}
+hist(crimeData$crmrte)
+```
+
+
+# Model Building 1
+
+
+
+# Model Building 2
+
+
+
+# Model Building 3
+
+
+
+# Model Display
+
+
+
+# Omitted Variables
