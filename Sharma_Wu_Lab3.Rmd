@@ -15,28 +15,71 @@ summary(crimeData)
 ```
 
 
+
+
+
 # Data Cleansing
+
 As shown in the summary table, there are 6 NA's in every variable. 
 After reviewing the data, we found that all NA's are in 6 rows, so we remove those rows as they do not provide any information.
 ```{r}
 crimeData2 <- crimeData[complete.cases(crimeData),]
 ```
 
+
 Variable 'prbconv' is incorrectly displayed as a text field. We convert it to numermic.
 ```{r}
-crimeData2$prbconv2 <- as.numeric(crimeData2$prbconv)
-summary(crimeData2$prbconv2)
+crimeData2 <- transform(crimeData2, prbconv = as.numeric(as.character(prbconv)))
+summary(crimeData2$prbconv)
 ```
+
+
+Usually the probability variable should be bound between 0 and 1.
+However, variables 'prbarr' (probability of arrest) and 'prbconv' (probability of conviction) has some observations with values greater than 1.
+```{r}
+crimeData2[which(crimeData2$prbarr>1),]
+```
+```{r}
+crimeData2[which(crimeData2$prbconv>1),]
+```
+????????????????????????? Do we want to cap it at 1 ??????????????????????????????????
+xxxxxxxxxxxxxx I heard other students ask Eric about this. He said don't take the word "probability" too literally xxxxxxxxxxxxx
+
+
+Variable 'pctmin80' (percent of minority in 1980) is expressed as percentages. 
+We convert it into decimals to be consistent with variable 'pctymle' (percent of young male).
+```{r}
+crimeData2$pctmin80_2 <- crimeData2$pctmin80/100
+```
+
+
+The max value of variable 'wser' (weekly wage of service industry) is significantly higher than its third quartile.
+The histogram below shows that the max value (2177.068) is significantly higher than the rest of values.
+```{r}
+hist(crimeData2$wser)
+crimeData2[which(crimeData2$wser>2000),]
+```
+By examining the county 185, whose wser is 2177.068, we find that all the other weekly wage variables for the county is within a normal range.
+So it's possible that the value of 2177.068 is erroneous. 
+Unfortunately, we don't have additional information to verify this entry.
+If variable 'wser' is in the model, this data point will be highly leveraged and could potentially be influential.
+We will examine the Cook's distance later in the modeling session to identify influential data points.
+
+
+
 
 
 # EDA
 ```{r}
-hist(crimeData$crmrte)
+hist(crimeData2$crmrte)
+hist(crimeData2$wser)
 ```
 
 
 # Model Building 1
-
+```{r}
+step(lm(crmrte ~ prbarr+prbconv+prbpris+avgsen+polpc+density+taxpc+west+central+urban+pctmin80_2+wcon+wtuc+wtrd+wfir+wser+wmfg+wfed+wsta+wloc+mix+pctymle, data=crimeData2), direction="both")
+```
 
 
 # Model Building 2
