@@ -42,8 +42,14 @@ crimeData2[which(crimeData2$prbarr>1),]
 ```{r}
 crimeData2[which(crimeData2$prbconv>1),]
 ```
-????????????????????????? Do we want to cap it at 1 ??????????????????????????????????
-xxxxxxxxxxxxxx I heard other students ask Eric about this. He said don't take the word "probability" too literally xxxxxxxxxxxxx
+why prbarr > 1: multiple people can be convincted of one crime but counted as multiple arrests.
+why prbconv > 1: one possibility is that one person can be convincted on multiple crimes while once arrested once?
+```{r}
+hist(crimeData2$prbarr)
+hist(crimeData2$prbconv)
+```
+
+
 
 
 Variable 'pctmin80' (percent of minority in 1980) is expressed as percentages. 
@@ -60,6 +66,7 @@ hist(crimeData2$wser)
 crimeData2[which(crimeData2$wser>2000),]
 ```
 By examining the county 185, whose wser is 2177.068, we find that all the other weekly wage variables for the county is within a normal range.
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 So it's possible that the value of 2177.068 is erroneous. 
 Unfortunately, we don't have additional information to verify this entry.
 If variable 'wser' is in the model, this data point will be highly leveraged and could potentially be influential.
@@ -74,6 +81,12 @@ We will examine the Cook's distance later in the modeling session to identify in
 hist(crimeData2$crmrte)
 hist(crimeData2$wser)
 ```
+histogram + correlation graph => bin? transformation?
+Bhuvnesh: prbarr - pctmin80
+Angela: wcon - pctmle
+meet 4pm CST tomorrow
+due Monday 8pm CST
+
 
 
 # Model Building 1
