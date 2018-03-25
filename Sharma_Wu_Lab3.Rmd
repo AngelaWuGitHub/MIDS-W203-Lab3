@@ -9,10 +9,14 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
-crimeData <- read.csv("crime_v2.csv")
-summary(crimeData)
-```
+
+
+
+
+# Introduction
+?????????????????????? What's the motivation of the study ????????????????????????
+xxxxxxxxxxxxxxxxxxxxxx create a draft report that addresses the concerns of the political campaign
+xxxxxxxxxxxxxxxxxxxxxx What do you want to measure? Make sure you identify variables that will be relevant to the concerns of the political campaign
 
 
 
@@ -20,14 +24,20 @@ summary(crimeData)
 
 # Data Cleansing
 
+```{r}
+crimeData <- read.csv("crime_v2.csv")
+summary(crimeData)
+```
+
+
 As shown in the summary table, there are 6 NA's in every variable. 
-After reviewing the data, we found that all NA's are in 6 rows, so we remove those rows as they do not provide any information.
+After reviewing the data, we found that all NA's are in 6 rows, so we removed those rows as they did not provide any information.
 ```{r}
 crimeData2 <- crimeData[complete.cases(crimeData),]
 ```
 
 
-Variable 'prbconv' is incorrectly displayed as a text field. We convert it to numermic.
+Variable 'prbconv' was incorrectly displayed as a text field. We converted it to numermic.
 ```{r}
 crimeData2 <- transform(crimeData2, prbconv = as.numeric(as.character(prbconv)))
 summary(crimeData2$prbconv)
@@ -35,25 +45,24 @@ summary(crimeData2$prbconv)
 
 
 Usually the probability variable should be bound between 0 and 1.
-However, variables 'prbarr' (probability of arrest) and 'prbconv' (probability of conviction) has some observations with values greater than 1.
+However, there is one observation with 'prbarr' (probability of arrest) higher than 1, 
+and 10 observations with 'prbconv' (probability of conviction) higher than 1.
 ```{r}
-crimeData2[which(crimeData2$prbarr>1),]
+nrow(crimeData2[which(crimeData2$prbarr>1),])
+nrow(crimeData2[which(crimeData2$prbconv>1),])
 ```
-```{r}
-crimeData2[which(crimeData2$prbconv>1),]
-```
-why prbarr > 1: multiple people can be convincted of one crime but counted as multiple arrests.
-why prbconv > 1: one possibility is that one person can be convincted on multiple crimes while once arrested once?
-```{r}
-hist(crimeData2$prbarr)
-hist(crimeData2$prbconv)
-```
-
-
+Variable 'prbarr' is defined as the ratio of arrests to offenses. 
+One possible explanation for 'prbarr' being greater than 1 is that 
+multiple people who convicted a single crime together is counted as one conviction but multiple arrests.   
+Variable 'prbconv' is defined as the ratio of convictions to arrests.
+One possible explanation for 'prbconv' being greater than 1 is that 
+one person who is convicted of multiple crimes but only arrested once.   
+Without further information on the variables, we could not conclude whether these values are valid.
+So we left those observations in the data.
 
 
 Variable 'pctmin80' (percent of minority in 1980) is expressed as percentages. 
-We convert it into decimals to be consistent with variable 'pctymle' (percent of young male).
+We converted it into decimals to be consistent with variable 'pctymle' (percent of young male).
 ```{r}
 crimeData2$pctmin80_2 <- crimeData2$pctmin80/100
 ```
@@ -65,8 +74,16 @@ The histogram below shows that the max value (2177.068) is significantly higher 
 hist(crimeData2$wser)
 crimeData2[which(crimeData2$wser>2000),]
 ```
-By examining the county 185, whose wser is 2177.068, we find that all the other weekly wage variables for the county is within a normal range.
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+We examined County 185, whose wser is 2177.068.
+We noticed that most other weekly wage variables for County 185 are below the means.
+You would expect that a richer county would have weekly wage in multiple industries to be higher than the average.
+So it's very unlikely for a county to have lower than average weekly wage on constructure, transportation, retail, finance, etc. 
+but extremely high weekly wage on the service industry.
+xxxxxxxxxxxxxxxxxxxxxxxxx Option 1: xxxxxxxxxxxxxxxxxxxxxxxxxx
+In addition, an average weekly wage of 2177.068 in 1987 is an unreasonable value.
+So we believed 2177.068 is erroneous.
+We removed this value from the data.
+xxxxxxxxxxxxxxxxxxxxxxxxx Option 2: xxxxxxxxxxxxxxxxxxxxxxxxxx
 So it's possible that the value of 2177.068 is erroneous. 
 Unfortunately, we don't have additional information to verify this entry.
 If variable 'wser' is in the model, this data point will be highly leveraged and could potentially be influential.
@@ -86,6 +103,46 @@ Bhuvnesh: prbarr - pctmin80
 Angela: wcon - pctmle
 meet 4pm CST tomorrow
 due Monday 8pm CST
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+library(car)
+crimeData3 <- crimeData2[which(crimeData2$wser<2000),]
+scatterplotMatrix(~ crmrte+wcon+wtuc, data=crimeData2, diagonal="histogram")
+scatterplotMatrix(~ crmrte+wtrd+wfir, data=crimeData2, diagonal="histogram")
+scatterplotMatrix(~ crmrte+wser+wmfg, data=crimeData2, diagonal="histogram")
+scatterplotMatrix(~ crmrte+wser+wmfg, data=crimeData3, diagonal="histogram")
+scatterplotMatrix(~ crmrte+wfed+wsta+wloc, data=crimeData2, diagonal="histogram")
+scatterplotMatrix(~ crmrte+mix+pctymle, data=crimeData2, diagonal="histogram")
+```
+I think I would delete wser = 2177.068 because it significantly distorted the trend.
+wmfg has a weird shape.
+wsta has a weird flat then increase trend.
+not sure how to interpret the variable 'mix'
+pctymle has one extreme value as well. This data point is highly leveraged and could potentially be influential.
+Most other variables look like they have linear relationships with crmrte.
+
+```{r}
+crimeData3[which(crimeData2$pctymle>0.1),]
+```
+
+
+
+
+
+
 
 
 
