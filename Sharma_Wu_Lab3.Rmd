@@ -18,7 +18,10 @@ knitr::opts_chunk$set(echo = TRUE)
 xxxxxxxxxxxxxxxxxxxxxx create a draft report that addresses the concerns of the political campaign
 xxxxxxxxxxxxxxxxxxxxxx What do you want to measure? Make sure you identify variables that will be relevant to the concerns of the political campaign
 
-
+Crime is huge menace in the society, there have been many attempts in past to reduce crime rates within communities in North Carolina.
+Traditional politicians and conventional approach has assumed that tough on crime is an effective tool to curb crime. Being tough on crime is regularly misunderstood as longer and mandatory prison sentences. This misguided strategy can lead to state’s higher investment on prison infrastructure and also make laws which can promote mandatory prison sentences appear as effective crime fighting tool.
+The goal of this study is to uncover the real facts around the crime rates within North Carolina to develop effective state policy around to reduce crime rates. Key motivation of the report discover the real drivers and instruments which the policy makers can use and have meaningful impact on crime. Study intends to empower the state politicians , key legislative leaders with key facts which have been based on data and not on conventional  empirical narratives.
+Study intends to discover key variables which have major impact on crime rates in North Carolina . This information would be critical for voters to understand so that they can make an informed decision on a important election issue.
 
 
 
