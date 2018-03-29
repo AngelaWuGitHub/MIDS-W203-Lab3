@@ -57,7 +57,7 @@ multiple people who convicted a single crime together is counted as one convicti
 Variable 'prbconv' is defined as the ratio of convictions to arrests.
 One possible explanation for 'prbconv' being greater than 1 is that 
 one person who is convicted of multiple crimes but only arrested once.   
-Without further information on the variables, we could not conclude whether these values are valid.
+Without further information on the variables, we could not conclude whether these values are invalid.
 So we left those observations in the data.
 
 
@@ -79,21 +79,140 @@ We noticed that most other weekly wage variables for County 185 are below the me
 You would expect that a richer county would have weekly wage in multiple industries to be higher than the average.
 So it's very unlikely for a county to have lower than average weekly wage on constructure, transportation, retail, finance, etc. 
 but extremely high weekly wage on the service industry.
-xxxxxxxxxxxxxxxxxxxxxxxxx Option 1: xxxxxxxxxxxxxxxxxxxxxxxxxx
 In addition, an average weekly wage of 2177.068 in 1987 is an unreasonable value.
 So we believed 2177.068 is erroneous.
-We removed this value from the data.
-xxxxxxxxxxxxxxxxxxxxxxxxx Option 2: xxxxxxxxxxxxxxxxxxxxxxxxxx
-So it's possible that the value of 2177.068 is erroneous. 
-Unfortunately, we don't have additional information to verify this entry.
-If variable 'wser' is in the model, this data point will be highly leveraged and could potentially be influential.
-We will examine the Cook's distance later in the modeling session to identify influential data points.
+We removed this observation from the data.
+```{r}
+crimeData2 <- crimeData2[which(crimeData2$wser<2000),]
+```
+
+
+
+# Exploratory Data Analysis
+We wanted to first investigate the relationship between our target variable (crime rate) and the variables of key interest.
+
+## Probability of arrest (prbarr)
+The scatter plot of crmrte vs. prbarr on the left shows an exponential decay trend.
+In addition, the variation of crmrte decreases substantially as prbarr increases. 
+This suggests that the relationship between crmrte and prbarr is not linear.
+So we took the log of crime rate, and then re-graph the scatter plot (shown on the right).
+The scatter plot of crmrte_log vs. prbarr indicates a more linear relationship 
+and the variation of crmrte_log does not vary as much with prbarr.
+The correlation coefficient further supports the transformation.
+* The correlation between crmrte and prbarr is -0.41
+* The correlation between crmrte_log and prbarr is -0.50
+```{r}
+par(mfrow=c(1,2))
+plot(crimeData2$prbarr, crimeData2$crmrte)
+crimeData2$crmrte_log = log(crimeData2$crmrte)
+plot(crimeData2$prbarr, crimeData2$crmrte_log)
+cor(crimeData2$prbarr, crimeData2$crmrte)
+cor(crimeData2$prbarr, crimeData2$crmrte_log)
+```
+In addition, we noticed a leveraged data point in the graph, that's County 115. 
+County 115 has significantly higher probability of arrest than all other counties.
+```{r}
+plot(crimeData2$prbarr, crimeData2$crmrte)
+text(crimeData2$prbarr, crimeData2$crmrte, labels = crimeData2$county, cex=0.7, pos=3)
+```
+
+
+## Probability of conviction
+Similar to prbarr, the scatter plot of crmrte vs. prbconv on the left shows an exponential decay trend.
+In addition, the variation of crmrte decreases substantially as prbconv increases. 
+This suggests that the relationship between crmrte and prbconv is not linear.
+So we took the log of crime rate, and then re-graph the scatter plot (shown on the right).
+The scatter plot of crmrte_log vs. prbconv indicates a more linear relationship 
+and the variation of crmrte_log does not vary as much with prbconv
+The correlation coefficient further supports the transformation.
+* The correlation between crmrte and prbarr is -0.37
+* The correlation between crmrte_log and prbarr is -0.41
+```{r}
+par(mfrow=c(1,2))
+plot(crimeData2$prbconv, crimeData2$crmrte)
+plot(crimeData2$prbconv, crimeData2$crmrte_log)
+cor(crimeData2$prbconv, crimeData2$crmrte)
+cor(crimeData2$prbconv, crimeData2$crmrte_log)
+
+######################### ? ################################
+crimeData2$prbconv_cap = replace(crimeData2$prbconv, crimeData2$prbconv > 1, 1)
+plot(crimeData2$prbconv_cap, crimeData2$crmrte)
+plot(crimeData2$prbconv_cap, crimeData2$crmrte_log)
+cor(crimeData2$prbconv_cap, crimeData2$crmrte)
+cor(crimeData2$prbconv_cap, crimeData2$crmrte_log)
+############################################################
+```
+
+
+## Probability of prison
+The scatter plot of prbpris vs. crmrte doesn't show an obvious relationship.
+The correlation coefficient is only 0.05.
+```{r}
+plot(crimeData2$prbpris, crimeData2$crmrte)
+cor(crimeData2$prbpris, crimeData2$crmrte)
+```
+
+
+## Average sentence days
+The scatter plot of avgsen vs. crmrte doesn't show an obvious relationship.
+The correlation coefficient is only 0.01.
+```{r}
+plot(crimeData2$avgsen, crimeData2$crmrte)
+cor(crimeData2$avgsen, crimeData2$crmrte)
+```
 
 
 
 
 
-# EDA
+
+
+plot(crimeData2$prbpris, crimeData2$crmrte)
+plot(crimeData2$avgsen, crimeData2$crmrte)
+cor(crimeData2$crmrte, crimeData2$prbarr)
+cor(crimeData2$crmrte, crimeData2$prbconv)
+cor(crimeData2$crmrte, crimeData2$prbpris)
+cor(crimeData2$crmrte, crimeData2$avgsen)
+crimeData2$crmrte_log = log(crimeData2$crmrte)
+plot(crimeData2$prbarr, crimeData2$crmrte_log)
+plot(crimeData2$prbconv, crimeData2$crmrte_log)
+plot(crimeData2$prbpris, crimeData2$crmrte_log)
+plot(crimeData2$avgsen, crimeData2$crmrte_log)
+cor(crimeData2$crmrte_log,crimeData2$prbarr)
+cor(crimeData2$crmrte_log,crimeData2$prbconv)
+cor(crimeData2$crmrte_log,crimeData2$prbpris)
+cor(crimeData2$crmrte_log,crimeData2$avgsen)
+```
+
+
+
+
+
+```{r}
+crimeData2_drop <- c("year") # extra column
+crimeData3 = crimeData2[ , !(names(crimeData2) %in% crimeData2_drop)]
+correlations <- cor(na.omit(crimeData3[,-1,]))
+
+# correlations
+row_indic <- apply(correlations, 1, function(x) sum(x > 0.3 | x < -0.3) > 1)
+correlations<- correlations[row_indic ,row_indic ]
+install.packages("corrplot", dependencies = TRUE)
+library(corrplot)
+corrplot(correlations, method="square")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
 ```{r}
 hist(crimeData2$crmrte)
 hist(crimeData2$wser)
@@ -119,11 +238,9 @@ due Monday 8pm CST
 
 ```{r}
 library(car)
-crimeData3 <- crimeData2[which(crimeData2$wser<2000),]
 scatterplotMatrix(~ crmrte+wcon+wtuc, data=crimeData2, diagonal="histogram")
 scatterplotMatrix(~ crmrte+wtrd+wfir, data=crimeData2, diagonal="histogram")
 scatterplotMatrix(~ crmrte+wser+wmfg, data=crimeData2, diagonal="histogram")
-scatterplotMatrix(~ crmrte+wser+wmfg, data=crimeData3, diagonal="histogram")
 scatterplotMatrix(~ crmrte+wfed+wsta+wloc, data=crimeData2, diagonal="histogram")
 scatterplotMatrix(~ crmrte+mix+pctymle, data=crimeData2, diagonal="histogram")
 ```
@@ -136,6 +253,8 @@ Most other variables look like they have linear relationships with crmrte.
 
 ```{r}
 crimeData3[which(crimeData2$pctymle>0.1),]
+crimeData3$w_sum <- crimeData3$wcon+crimeData3$wtuc+crimeData3$wtrd+crimeData3$wfir+crimeData3$wser+crimeData3$wmfg+crimeData3$wfed+crimeData3$wsta+crimeData3$wloc
+cor(crimeData3$crmrte,crimeData3$w_sum)
 ```
 
 
@@ -151,6 +270,42 @@ crimeData3[which(crimeData2$pctymle>0.1),]
 step(lm(crmrte ~ prbarr+prbconv+prbpris+avgsen+polpc+density+taxpc+west+central+urban+pctmin80_2+wcon+wtuc+wtrd+wfir+wser+wmfg+wfed+wsta+wloc+mix+pctymle, data=crimeData2), direction="both")
 ```
 
+
+```{r}
+scatterplotMatrix(~ crmrte+prbarr+prbconv+prbpris+avgsen, data=crimeData2, diagonal="histogram")
+plot(crimeData2$prbarr, crimeData2$crmrte)
+text(crimeData2$prbarr, crimeData2$crmrte, labels = crimeData2$county, cex=0.7, pos=3)
+
+
+plot(crimeData2$prbconv, crimeData2$crmrte)
+text(crimeData2$prbconv, crimeData2$crmrte, labels = crimeData2$county, cex=0.7, pos=3)
+plot(crimeData2$prbpris, crimeData2$crmrte)
+plot(crimeData2$avgsen, crimeData2$crmrte)
+cor(crimeData2$crmrte, crimeData2$prbarr)
+cor(crimeData2$crmrte, crimeData2$prbconv)
+cor(crimeData2$crmrte, crimeData2$prbpris)
+cor(crimeData2$crmrte, crimeData2$avgsen)
+crimeData2$crmrte_log = log(crimeData2$crmrte)
+plot(crimeData2$prbarr, crimeData2$crmrte_log)
+plot(crimeData2$prbconv, crimeData2$crmrte_log)
+plot(crimeData2$prbpris, crimeData2$crmrte_log)
+plot(crimeData2$avgsen, crimeData2$crmrte_log)
+cor(crimeData2$crmrte_log,crimeData2$prbarr)
+cor(crimeData2$crmrte_log,crimeData2$prbconv)
+cor(crimeData2$crmrte_log,crimeData2$prbpris)
+cor(crimeData2$crmrte_log,crimeData2$avgsen)
+model1 <- lm(crmrte ~ prbarr+prbconv+prbpris+avgsen, data=crimeData2)
+summary(model1)
+plot(model1)
+
+
+## Detect heteroskedasticity, var(y) seems correlated with E(y)
+## Take the log of y
+crimeData2$crmrte_log = log(crimeData2$crmrte)
+model2 <- lm(crmrte_log ~ prbarr+prbconv+prbpris+avgsen, data=crimeData2)
+summary(model2)
+plot(model2)
+```
 
 # Model Building 2
 
