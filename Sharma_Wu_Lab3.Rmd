@@ -14,9 +14,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 # Introduction
-?????????????????????? What's the motivation of the study ????????????????????????
-xxxxxxxxxxxxxxxxxxxxxx create a draft report that addresses the concerns of the political campaign
-xxxxxxxxxxxxxxxxxxxxxx What do you want to measure? Make sure you identify variables that will be relevant to the concerns of the political campaign
 
 Crime is huge menace in the society, there have been many attempts in past to reduce crime rates within communities in North Carolina.
 Traditional politicians and conventional approach has assumed that tough on crime is an effective tool to curb crime. Being tough on crime is regularly misunderstood as longer and mandatory prison sentences. This misguided strategy can lead to state’s higher investment on prison infrastructure and also make laws which can promote mandatory prison sentences appear as effective crime fighting tool.
@@ -70,11 +67,14 @@ We converted it into decimals to be consistent with variable 'pctymle' (percent 
 crimeData2$pctmin80_2 <- crimeData2$pctmin80/100
 ```
 
+```{r}
+################################################################# / 1000
+```
 
 The max value of variable 'wser' (weekly wage of service industry) is significantly higher than its third quartile.
 The histogram below shows that the max value (2177.068) is significantly higher than the rest of values.
 ```{r}
-hist(crimeData2$wser)
+hist(crimeData2$wser, main="Histogram of Weekly Wage in Service Industry")
 crimeData2[which(crimeData2$wser>2000),]
 ```
 We examined County 185, whose wser is 2177.068.
@@ -101,9 +101,9 @@ This suggests that the relationship between crmrte and prbarr is not linear.
 So we took the log of crime rate, and then re-graph the scatter plot (shown on the right).
 The scatter plot of crmrte_log vs. prbarr indicates a more linear relationship 
 and the variation of crmrte_log does not vary as much with prbarr.
-The correlation coefficient further supports the transformation.
-* The correlation between crmrte and prbarr is -0.41
-* The correlation between crmrte_log and prbarr is -0.50
+The correlation coefficient further supports the transformation.  
+* The correlation between crmrte and prbarr is -0.41  
+* The correlation between crmrte_log and prbarr is -0.50  
 ```{r}
 par(mfrow=c(1,2))
 plot(crimeData2$prbarr, crimeData2$crmrte)
@@ -147,29 +147,28 @@ cor(crimeData2$prbconv_cap, crimeData2$crmrte_log)
 ```
 
 
-## Probability of prison
-The scatter plot of prbpris vs. crmrte doesn't show an obvious relationship.
-The correlation coefficient is only 0.05.
+## Probability of prison | Average sentence days
+Neither scatter plots of prbpris vs. crmrte and avgsen vs. crmrte shows obvious relationships.
+The correlation coefficient is only 0.05 and 0.01 respectively.
 ```{r}
+par(mfrow=c(1,2))
 plot(crimeData2$prbpris, crimeData2$crmrte)
-cor(crimeData2$prbpris, crimeData2$crmrte)
-```
-
-
-## Average sentence days
-The scatter plot of avgsen vs. crmrte doesn't show an obvious relationship.
-The correlation coefficient is only 0.01.
-```{r}
 plot(crimeData2$avgsen, crimeData2$crmrte)
+cor(crimeData2$prbpris, crimeData2$crmrte)
 cor(crimeData2$avgsen, crimeData2$crmrte)
 ```
 
 
 
 
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx side by side Probability of prison | Average sentence days
+
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx top-coded variables
 
 
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx check whether the weekly wages highly correlated => transformation (sum)
 
+```{r}
 plot(crimeData2$prbpris, crimeData2$crmrte)
 plot(crimeData2$avgsen, crimeData2$crmrte)
 cor(crimeData2$crmrte, crimeData2$prbarr)
@@ -192,16 +191,16 @@ cor(crimeData2$crmrte_log,crimeData2$avgsen)
 
 
 ```{r}
-crimeData2_drop <- c("year") # extra column
-crimeData3 = crimeData2[ , !(names(crimeData2) %in% crimeData2_drop)]
-correlations <- cor(na.omit(crimeData3[,-1,]))
+#crimeData2_drop <- c("year") # extra column
+#crimeData3 = crimeData2[ , !(names(crimeData2) %in% crimeData2_drop)]
+#correlations <- cor(na.omit(crimeData3[,-1,]))
 
 # correlations
-row_indic <- apply(correlations, 1, function(x) sum(x > 0.3 | x < -0.3) > 1)
-correlations<- correlations[row_indic ,row_indic ]
-install.packages("corrplot", dependencies = TRUE)
-library(corrplot)
-corrplot(correlations, method="square")
+#row_indic <- apply(correlations, 1, function(x) sum(x > 0.3 | x < -0.3) > 1)
+#correlations<- correlations[row_indic ,row_indic ]
+#install.packages("corrplot", dependencies = TRUE)
+#library(corrplot)
+#corrplot(correlations, method="square")
 ```
 
 
@@ -220,20 +219,6 @@ corrplot(correlations, method="square")
 hist(crimeData2$crmrte)
 hist(crimeData2$wser)
 ```
-histogram + correlation graph => bin? transformation?
-Bhuvnesh: prbarr - pctmin80
-Angela: wcon - pctmle
-meet 4pm CST tomorrow
-due Monday 8pm CST
-
-
-
-
-
-
-
-
-
 
 
 
@@ -255,9 +240,9 @@ pctymle has one extreme value as well. This data point is highly leveraged and c
 Most other variables look like they have linear relationships with crmrte.
 
 ```{r}
-crimeData3[which(crimeData2$pctymle>0.1),]
-crimeData3$w_sum <- crimeData3$wcon+crimeData3$wtuc+crimeData3$wtrd+crimeData3$wfir+crimeData3$wser+crimeData3$wmfg+crimeData3$wfed+crimeData3$wsta+crimeData3$wloc
-cor(crimeData3$crmrte,crimeData3$w_sum)
+#crimeData3[which(crimeData2$pctymle>0.1),]
+#crimeData3$w_sum <- crimeData3$wcon+crimeData3$wtuc+crimeData3$wtrd+crimeData3$wfir+crimeData3$wser+crimeData3$wmfg+crimeData3$wfed+crimeData3$wsta+crimeData3$wloc
+#cor(crimeData3$crmrte,crimeData3$w_sum)
 ```
 
 
