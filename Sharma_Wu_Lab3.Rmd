@@ -348,6 +348,7 @@ AIC(model3)
 
 
 ```{r}
+############################################ Redo this with heteroskedasticity consistent standard errors
 model4 <- lm(crmrte_log ~ prbarr+prbconv+polpc_log+density_log+pctmin80+wfed, data=crimeData2)
 summary(model4)
 plot(model4)
@@ -375,7 +376,7 @@ Shall we still include polpc?
 
 # Model Building 3
 ```{r}
-model5 <- lm(crmrte_log ~ prbarr+prbconv+prbpris+avgsen+polpc+density+taxpc+west+central+urban+pctmin80_2+wcon+wtuc+wtrd+wfir+wser+wmfg+wfed+wsta+wloc+mix+pctymle, data=crimeData2)
+model5 <- lm(crmrte_log ~ prbarr+prbconv+prbpris+avgsen+polpc_log+density_log+taxpc+west+central+urban+pctmin80_2+wcon+wtuc+wtrd+wfir+wser+wmfg+wfed+wsta+wloc+mix+pctymle, data=crimeData2)
 summary(model5)
 plot(model5)
 AIC(model5)
