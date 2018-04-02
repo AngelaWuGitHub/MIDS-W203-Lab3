@@ -334,8 +334,6 @@ stargazer(model1, model2, model3, type = "latex",
 
 # Omitted Variables
 
-In the model 1 , we can represent true 
-
  We are interested in the relationship between prbarr and prbconv and our “omitted” variables mentioned below.
  1.) Education
  2.) Percentage of people using drug
@@ -344,7 +342,7 @@ In the model 1 , we can represent true
  5.) Percentage of smart mobile penetration
  
  Suppose our estimation model is represented by below equation , where A is prbarr and B is prbconv. 
- $$\beta_0, \beta_1,\beta_2$$  is the interceipts and coefficients of A (prbarr) and B (prbconv) respectively.  We can represent the Population regression as 
+ $\beta_0, \beta_1,\beta_2$  is the intercepts and coefficients of A (prbarr) and B (prbconv) respectively.  We can represent the Population regression as 
 
 $$ Y (Population) = \beta_0+\beta_1A+\beta_2B $$
 
