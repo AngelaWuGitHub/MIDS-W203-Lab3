@@ -304,7 +304,7 @@ model1$coefficients
 Cook's distance for Observation 51, which is County 115, is close to 1. 
 
 # Model Building 2
-We put all the variables with correlation higher than 0.25 in the model except for those highly correlated with each other.
+We put all the variables with correlation higher than 0.25 in the model except for those highly correlated with each other. Also We took the log of police per capita and people per square mile because EDA showed that they have a stronger linear relationship with log of crime rate compared to their original form.
 ```{r}
 model2 <- lm(crmrte_log ~ prbarr+prbconv+polpc_log+density_log+west+pctmin80+wfed+
                pctymle, data=crimeData2)

@@ -1,6 +1,6 @@
 crime rate <- density (positive)
 prbarr <- density (positive)
-beta1 is scaled away from zero gainning statistical significance
+beta1 is scaled away from zero gaining statistical significance
 true beta1 > estimated beta1
 
 
@@ -31,6 +31,7 @@ true is even more negative
 
 Omitted variable 2: % of people using drug
 crime rate <- drug use (positive)
+
 prbarr <- drug use (positive)
 	drug addict are easier to be found if they committed a crime => higher arrest
 	Higher chance police believes drug addicts committed a crime => higher arrest
