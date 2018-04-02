@@ -301,30 +301,19 @@ cor(crimeData2$pctymle, crimeData2$crmrte_log)
 
 
 
-?????????????????????????????????????????????????????????????? top-coded variables
-
-
-
-?????????????????????????????????????????????????????????????? What covariates help you identify a causal effect?
-
-
-
 
 
 # Model Building 1
 ```{r}
 model1 <- lm(crmrte_log ~ prbarr+prbconv+prbpris+avgsen, data=crimeData2)
-summary(model1)
-plot(model1)
-AIC(model1)
+model1$coefficients
+library(lmtest)
+#coeftest(model1, vcov = vcovHC)
+#plot(model1)
+#AIC(model1)
 ```
 Cook's distance for Observation 51, which is County 115, is close to 1. 
-```{r}
-model2 <- lm(crmrte_log ~ prbarr+prbconv+prbpris+avgsen, data=crimeData3)
-summary(model2)
-plot(model2)
-AIC(model2)
-```
+
 
 
 
@@ -340,57 +329,38 @@ AIC(model2)
 # Model Building 2
 We put all the variables with correlation higher than 0.25 in the model except for those highly correlated with each other.
 ```{r}
-model3 <- lm(crmrte_log ~ prbarr+prbconv+polpc_log+density_log+west+pctmin80+wfed+pctymle, data=crimeData2)
-summary(model3)
-plot(model3)
-AIC(model3)
+model2 <- lm(crmrte_log ~ prbarr+prbconv+polpc_log+density_log+west+pctmin80+wfed+pctymle, data=crimeData2)
+model2$coefficients
+#coeftest(model2, vcov = vcovHC)
+#plot(model2)
+#AIC(model2)
 ```
 
 
-```{r}
-############################################ Redo this with heteroskedasticity consistent standard errors
-model4 <- lm(crmrte_log ~ prbarr+prbconv+polpc_log+density_log+pctmin80+wfed, data=crimeData2)
-summary(model4)
-plot(model4)
-AIC(model4)
-```
-
-?????????????????????????????????????????????????????????????????????
-you should not include outcome variables that will absorb some of the causal effect you are interested in
-Shall we still include polpc?
-?????????????????????????????????????????????????????????????????????
-
-
-
-
-
-
-
-
-
-```{r}
-#step(lm(crmrte ~ prbarr+prbconv+prbpris+avgsen+polpc+density+taxpc+west+central+urban+pctmin80_2+wcon+wtuc+wtrd+wfir+wser+wmfg+wfed+wsta+wloc+mix+pctymle, data=crimeData2), direction="both")
-```
 
 
 
 # Model Building 3
 ```{r}
-model5 <- lm(crmrte_log ~ prbarr+prbconv+prbpris+avgsen+polpc_log+density_log+taxpc+west+central+urban+pctmin80_2+wcon+wtuc+wtrd+wfir+wser+wmfg+wfed+wsta+wloc+mix+pctymle, data=crimeData2)
-summary(model5)
-plot(model5)
-AIC(model5)
+model3 <- lm(crmrte_log ~ prbarr+prbconv+prbpris+avgsen+polpc_log+density_log+taxpc+west+central+urban+pctmin80_2+wcon+wtuc+wtrd+wfir+wser+wmfg+wfed+wsta+wloc+mix+pctymle, data=crimeData2)
+model3$coefficients
+#coeftest(model3, vcov = vcovHC)
+#plot(model3)
+#AIC(model3)
 ```
 
 
 # Model Display
 ```{r, results='asis'}
+#se.model1 = sqrt(diag(vcovHC(model1)))
+#se.model2 = sqrt(diag(vcovHC(model2)))
+#se.model3 = sqrt(diag(vcovHC(model3)))
 library(stargazer)
-stargazer(model1, model4, model5, type = "latex", 
-          report = "vc",
+stargazer(model1, model2, model3, type = "latex", 
           title = "Linear Models Predicting Log of Crime Rate",
-          keep.stat = c("rsq", "n"),
-          omit.table.layout = "n",
+          omit.stat="f",
+          #se=list(se.model1, se.model2, se.model3),
+          star.cutoffs = c(0.05, 0.01, 0.001),
           float=FALSE) 
 ```
 

@@ -1,0 +1,148 @@
+crime rate <- density (positive)
+prbarr <- density (positive)
+beta1 is scaled away from zero gainning statistical significance
+true beta1 > estimated beta1
+
+
+
+Omitted variable 1: education
+crime rate <- education (negative)
+	higher education => less likely to commit a crime
+	educated understand the law better and respect it
+prbarr <- education (negative)
+	educated people are aware of rights => avoid being wrongfully arrested
+	police less likely to believe an educated people commit a crime
+	more educated people are more familiar with investigation method (leave less clues)
+alpha1 < 0
+positive bias
+alpha1 (estiamted) = -2.1 = beta1 (true) + positive
+true is even more negative
+
+prbconv <- education (negative)
+	have higher income => afford better lawyer => less likely to be convicted
+alpha1 < 0
+positive bias
+alpha1 (estiamted) = -0.8 = beta1 (true) + positive
+true is even more negative
+
+
+
+
+
+Omitted variable 2: % of people using drug
+crime rate <- drug use (positive)
+prbarr <- drug use (positive)
+	drug addict are easier to be found if they committed a crime => higher arrest
+	Higher chance police believes drug addicts committed a crime => higher arrest
+	Drug addicts are in groups. Police can earily arrest the entire group when they find one.
+alpha1 < 0
+positive bias
+alpha1 (estiamted) = -2.1 = beta1 (true) + positive
+true is even more negative
+
+prbconv <- drug use (positive)
+	poor => cannot afford private lawyer => higher conviction
+alpha1 < 0
+positive bias
+alpha1 (estiamted) = -0.8 = beta1 (true) + positive
+true is even more negative
+
+
+
+
+Omitted variable 3: age
+
+
+
+
+
+
+Omitted variable 4: % of people are married with kids
+crime rate <- % of people are married with kids (negative)
+	married couples with kids have more considerations and thus less likely to commit a crime
+prbarr <- % of people are married with kids (negative)
+	afraid of retaliation => less likely to come forward with information
+alpha1 < 0
+positive bias
+alpha1 (estiamted) = -2.1 = beta1 (true) + positive
+true is even more negative
+
+prbconv <- % of people are married with kids (negative)
+	Judge will take into considerations of family conditions
+alpha1 < 0
+positive bias
+alpha1 (estiamted) = -0.8 = beta1 (true) + positive
+true is even more negative
+
+
+
+Omitted variable 5: % of people who own guns
+crime rate <- % of people who own guns (positive)
+	fist fight => gun fight
+prbarr <- % of people who own guns (positive)
+	higher percentage of crime are shooting related. Guns are easier to be tracked.
+alpha1 < 0
+positive bias
+alpha1 (estiamted) = -2.1 = beta1 (true) + positive
+true is even more negative
+
+prbconv <- % of people who own guns (negative)
+	People with guns are richer => afford better lawyer => less likely to be convicted
+alpha1 < 0
+negative bias
+alpha1 (estiamted) = -0.8 = beta1 (true) + negative
+true is less negative than estimated
+prbconv has less impact on the log of crime rate (lose statistical significance)
+
+
+
+
+
+Omitted variable 6: % of immigrants 
+
+
+
+
+
+
+Ommitted variable 7: % of smart mobile penetration
+crime rate <- % of smart mobile penetration (positive)
+	better communication via encrypted apps
+	higher chance of theft on smart phones
+prbarr <- % of smart mobile penetration (negative)
+	better communication via encrypted apps
+alpha1 < 0
+negative bias
+alpha1 (estiamted) = -2.1 = beta1 (true) + negative
+true is less negative than estimated
+prbarr has less impact on the log of crime rate (lose statistical significance)
+
+prbconv <- % of smart mobile penetration (negative)
+	smart phone has higher protection (such as iPhone), which are harder to crack by police
+	not all policy are good at dealing with digital evidence
+alpha1 < 0
+negative bias
+alpha1 (estiamted) = -0.8 = beta1 (true) + negative
+true is less negative than estimated
+prbconv has less impact on the log of crime rate (lose statistical significance)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Questions:
+What are top-coded variables?
+"What covariates help you identify a causal effect?" How can we tell whether an effect is causal?
+"you should not include outcome variables that will absorb some of the causal effect you are interested in" What does this mean?
