@@ -295,6 +295,7 @@ cor(crimeData2$pctymle, crimeData2$crmrte_log)
 ```
 
 # Model Building 1
+In the first model, we only include the four key variables we are interested in. They are probability of arrest, probability of conviction, probability of prison, average sentences. Based on the EDA above, we take the log of crime rate as our response variable and didn't find any transformation to be necessary for the four explanatory variables.
 ```{r}
 model1 <- lm(crmrte_log ~ prbarr+prbconv+prbpris+avgsen, data=crimeData2)
 model1$coefficients
@@ -312,6 +313,7 @@ model2$coefficients
 ```
 
 # Model Building 3
+For this model, we add all the variables to the model.
 ```{r}
 model3 <- lm(crmrte_log ~ prbarr+prbconv+prbpris+avgsen+polpc_log+density_log+taxpc+west+
                central+urban+pctmin80_2+wcon+wtuc+wtrd+wfir+wser+wmfg+wfed+wsta+wloc+mix+
