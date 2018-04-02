@@ -9,20 +9,12 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
-
-
-
 # Introduction
 
 Crime is huge menace in the society, there have been many attempts in past to reduce crime rates within communities in North Carolina.
 Traditional politicians and conventional approach has assumed that tough on crime is an effective tool to curb crime. Being tough on crime is regularly misunderstood as longer and mandatory prison sentences. This misguided strategy can lead to state’s higher investment on prison infrastructure and also make laws which can promote mandatory prison sentences appear as effective crime fighting tool.
 The goal of this study is to uncover the real facts around the crime rates within North Carolina to develop effective state policy around to reduce crime rates. Key motivation of the report discover the real drivers and instruments which the policy makers can use and have meaningful impact on crime. Study intends to empower the state politicians , key legislative leaders with key facts which have been based on data and not on conventional  empirical narratives.
 Study intends to discover key variables which have major impact on crime rates in North Carolina . This information would be critical for voters to understand so that they can make an informed decision on a important election issue.
-
-
-
-
 
 # Data Cleansing
 
@@ -31,20 +23,17 @@ crimeData <- read.csv("crime_v2.csv")
 summary(crimeData)
 ```
 
-
 As shown in the summary table, there are 6 NA's in every variable. 
 After reviewing the data, we found that all NA's are in 6 rows, so we removed those rows as they did not provide any information.
 ```{r}
 crimeData2 <- crimeData[complete.cases(crimeData),]
 ```
 
-
 Variable 'prbconv' was incorrectly displayed as a text field. We converted it to numermic.
 ```{r}
 crimeData2 <- transform(crimeData2, prbconv = as.numeric(as.character(prbconv)))
 summary(crimeData2$prbconv)
 ```
-
 
 Usually the probability variable should be bound between 0 and 1.
 However, there is one observation with 'prbarr' (probability of arrest) higher than 1, 
@@ -68,15 +57,11 @@ We converted it into decimals to be consistent with variable 'pctymle' (percent 
 ```{r}
 crimeData2$pctmin80_2 <- crimeData2$pctmin80/100
 ```
-
-```{r}
-################################################################# / 1000
-```
-
 The max value of variable 'wser' (weekly wage of service industry) is significantly higher than its third quartile.
 The histogram below shows that the max value (2177.068) is significantly higher than the rest of values.
 ```{r}
-hist(crimeData2$wser, main="Histogram of Weekly Wage in Service Industry")
+hist(crimeData2$wser, main="Histogram of Weekly Wage in Service Industry",
+     xlab = "Weekly Wage of Services" , col = "royalblue1")
 crimeData2[which(crimeData2$wser>2000),]
 ```
 We examined County 185, whose wser is 2177.068.
@@ -91,12 +76,7 @@ We removed this observation from the data.
 crimeData2 <- crimeData2[which(crimeData2$wser<2000),]
 ```
 
-
-
-
-
 # Exploratory Data Analysis
-
 ## Crimes committed per person (crmrte)
 The distribution of crime rate is skewed to the right, so we considered taking the log of crime rate.
 After the log transformation, the distribution of crmrte_log is closer to normal.
@@ -105,9 +85,11 @@ it tells us what's the percentage change in crime rate in response to a unit cha
 Our target variable is crmrte_log.
 ```{r}
 par(mfrow=c(1,2))
-hist(crimeData2$crmrte, main="Histogram of Crime Rate")
+hist(crimeData2$crmrte, main="Histogram of Crime Rate",xlab = "Crime Rate" , col = "blue")
 crimeData2$crmrte_log = log(crimeData2$crmrte)
-hist(crimeData2$crmrte_log, main="Histogram of Log of Crime Rate")
+hist(crimeData2$crmrte_log, main="Histogram Log of Crime Rate",
+     xlab = "Log of Crime Rate" , 
+     col = "royalblue1")
 ```
 
 ## Probability of arrest (prbarr)
@@ -121,8 +103,10 @@ The correlation coefficient further supports the transformation.
 * The correlation between crmrte_log and prbarr is -0.50  
 ```{r}
 par(mfrow=c(1,2))
-plot(crimeData2$prbarr, crimeData2$crmrte)
-plot(crimeData2$prbarr, crimeData2$crmrte_log)
+plot(crimeData2$prbarr, crimeData2$crmrte , main = "Prob of arrest & crime rate" , 
+     xlab = "Prob of Arrest",ylab = "Prob of Crime Rate",col="royalblue1")
+plot(crimeData2$prbarr, crimeData2$crmrte_log, main = "Prob of arrest & Log of crime rate" , 
+     xlab = "Prob of Arrest",ylab = "Prob Log of Crime Rate",col="royalblue1")
 cor(crimeData2$prbarr, crimeData2$crmrte)
 cor(crimeData2$prbarr, crimeData2$crmrte_log)
 ```
@@ -133,12 +117,12 @@ This indicates that County 115 could be an infludential observation.
 Later when building the model, we will calculate Cook's distance to confirm that County 15 is an influential observation 
 and also address the impact of influential observations to parameter estimates.
 ```{r}
-plot(crimeData2$prbarr, crimeData2$crmrte)
-text(crimeData2$prbarr, crimeData2$crmrte, labels = crimeData2$county, cex=0.7, pos=3)
+plot(crimeData2$prbarr, crimeData2$crmrte,main = "Prob of arrest & Log crime rate" , 
+     xlab = "Prob of Arrest",ylab = "Prob Log of Crime Rate",col="royalblue1")
+text(crimeData2$prbarr, crimeData2$crmrte, labels = crimeData2$county, cex=0.7, pos=3,col = "red")
 crimeData3 <- crimeData2[which(crimeData2$county!=115),]
 cor(crimeData3$prbarr, crimeData3$crmrte_log)
 ```
-
 
 ## Probability of conviction (prbconv)
 Similar to prbarr, the scatter plot of crmrte vs. prbconv on the left shows an exponential decay trend.
@@ -151,8 +135,10 @@ The correlation coefficient further supports the transformation.
 * The correlation between crmrte_log and prbarr is -0.41
 ```{r}
 par(mfrow=c(1,2))
-plot(crimeData2$prbconv, crimeData2$crmrte)
-plot(crimeData2$prbconv, crimeData2$crmrte_log)
+plot(crimeData2$prbconv, crimeData2$crmrte,main = "Prob of conv & crime rate" , 
+     xlab = "Prob of Conviction",ylab = "Prob of Crime Rate",col="royalblue1")
+plot(crimeData2$prbconv, crimeData2$crmrte_log,main = "Prob of conv & log crime rate" ,
+     xlab = "Prob of Conviction",ylab = "Prob of Log of Crime Rate",col="royalblue1")
 cor(crimeData2$prbconv, crimeData2$crmrte)
 cor(crimeData2$prbconv, crimeData2$crmrte_log)
 ```
@@ -160,11 +146,13 @@ cor(crimeData2$prbconv, crimeData2$crmrte_log)
 
 ## Probability of prison (prbpris) | Average sentence days (avgsen)
 Neither scatter plots below (prbpris vs. crmrte_log, avgsen vs. crmrte_log) shows obvious relationships.
-The correlation coefficients0 are only 0.03 and -0.08 respectively.
+The correlation coefficients are only 0.03 and -0.08 respectively.
 ```{r}
 par(mfrow=c(1,2))
-plot(crimeData2$prbpris, crimeData2$crmrte_log)
-plot(crimeData2$avgsen, crimeData2$crmrte_log)
+plot(crimeData2$prbpris, crimeData2$crmrte_log,main = "Prob of prison & log of crime rate" , 
+     xlab = "Prob of Prison",ylab = "Prob of log of Crime Rate",col="royalblue1")
+plot(crimeData2$avgsen, crimeData2$crmrte_log,main = "Avg sent & log of crime rate" , 
+     xlab = "Average Sentence",ylab = "Prob of log of Crime Rate",col="royalblue1")
 cor(crimeData2$prbpris, crimeData2$crmrte_log)
 cor(crimeData2$avgsen, crimeData2$crmrte_log)
 ```
@@ -179,21 +167,24 @@ In addition, the variation of crmrte increases as prbconv increases, which justi
 The correlation between crmrte_log and polpc (after removing County 115) is 0.45.
 ```{r}
 par(mfrow=c(1,3))
-plot(crimeData2$polpc, crimeData2$crmrte)
-plot(crimeData2$polpc, crimeData2$crmrte)
-text(crimeData2$polpc, crimeData2$crmrte, labels = crimeData2$county, cex=0.7, pos=3)
-plot(crimeData3$polpc, crimeData3$crmrte_log)
+plot(crimeData2$polpc, crimeData2$crmrte,main = "Polpc and Crime Rate" , 
+     xlab = "Police per capita",ylab = "Prob of Crime Rate",col="royalblue1")
+plot(crimeData2$polpc, crimeData2$crmrte,main = "Polpc and Crime Rate" , 
+     xlab = "Police per capita",ylab = "Prob of Crime Rate",col="royalblue1")
+text(crimeData2$polpc, crimeData2$crmrte, labels = crimeData2$county, cex=0.7, pos=3,col = "red")
+plot(crimeData3$polpc, crimeData3$crmrte_log,main = "Polpc and Log Crime Rate" , 
+     xlab = "Police per capita",ylab = "Prob of log of Crime Rate",col="royalblue1")
 cor(crimeData3$polpc, crimeData3$crmrte_log)
 ```
 We also noticed that the distribution of polpc is highly skewed to the right, so we took the log of polpc.
 The correlation coefficient (after removing County 115) increased from 0.45 to 0.54.
 ```{r}
-hist(crimeData2$polpc, main="Histogram of Police per Capita")
+hist(crimeData2$polpc, main="Histogram of Police per Capita",
+     xlab = "Police per capita" , col = "royalblue1")
 crimeData2$polpc_log <- log(crimeData2$polpc)
 crimeData3 <- crimeData2[which(crimeData2$county!=115),]
 cor(crimeData3$polpc_log, crimeData3$crmrte_log)
 ```
-
 
 ## People per square mile (density) | If in SMSA (urban)
 The histogram shows the distribution of density is highly skewed to the right, so we took the log of density.
@@ -203,12 +194,15 @@ The correlation between density and crmrte_log (without County 173) is 0.63,
 which is lower than the correlation between density_log and crmrte_log (without County 173) of 0.68.
 This further confirms that log of density has a stronger linear relationship with log of crime rate than density does.
 ```{r}
-hist(crimeData2$density, main="Histogram of People per Square Mile")
+par(mfrow=c(1,3))
+hist(crimeData2$density, main="Histogram of People per Square Mile",
+     xlab = "People per Square Mile / Density " , col = "royalblue1")
 crimeData2$density_log <- log(crimeData2$density)
-par(mfrow=c(1,2))
-plot(crimeData2$density_log, crimeData2$crmrte_log)
-plot(crimeData2$density_log, crimeData2$crmrte_log)
-text(crimeData2$density_log, crimeData2$crmrte_log, labels = crimeData2$county, cex=0.7, pos=3)
+plot(crimeData2$density_log, crimeData2$crmrte_log,main = "Log of Density & Crime Rate" , 
+     xlab = "Log of Density",ylab = "Prob of Log of Crime Rate",col="royalblue1")
+plot(crimeData2$density_log, crimeData2$crmrte_log,main = "Log of Density & Crime Rate" , 
+     xlab = "Log of Density",ylab = "Prob of Log of Crime Rate",col="royalblue1")
+text(crimeData2$density_log, crimeData2$crmrte_log, labels = crimeData2$county, cex=0.7, pos=3 , col = "red")
 crimeData4 <- crimeData2[which(crimeData2$county!=173),]
 cor(crimeData2$density_log, crimeData2$crmrte_log)
 cor(crimeData4$density_log, crimeData4$crmrte_log)
@@ -222,10 +216,9 @@ When building the model, we should avoid putting both variables in the model for
 1. Adding the second variable doesn't explain much additional variation of the response variable   
 2. High correlation can greatly increase the standard errors of parameter estimates
 ```{r}
-boxplot(density~urban, data=crimeData2)
+boxplot(density~urban, data=crimeData2 , main = "Box plot of crime rate")
 cor(crimeData4$urban, crimeData4$density_log)
 ```
-
 
 ## Tax revenue per capita (taxpc)
 The scatter plot indicates there may be a weak linear relationship between taxpc and crmrte_log.
@@ -233,13 +226,13 @@ The histogram of taxpc is skewed to the right, so we considered taking the log o
 However, the correlation between taxpc and crmrte_log (0.37) is slightly higher than the correlation between taxpc_log and crmrte_log (0.36).
 ```{r}
 par(mfrow=c(1,2))
-plot(crimeData3$taxpc, crimeData3$crmrte_log)
-hist(crimeData2$taxpc, main="Hist. of Tax Revenue")
+plot(crimeData3$taxpc, crimeData3$crmrte_log,main = "Crime Rate and tax per capita" , 
+     xlab = "Log of Crime Rate" , ylab = "Tax per capita" , col="royalblue1")
+hist(crimeData2$taxpc, main="Hist. of Tax Revenue",col = "red")
 crimeData2$taxpc_log <- log(crimeData2$taxpc)
 cor(crimeData2$taxpc, crimeData2$crmrte_log)
 cor(crimeData2$taxpc_log, crimeData2$crmrte_log)
 ```
-
 
 ## If in western/central North Carolina
 We created a variable, area, to categorize the area counties reside in. 
@@ -251,15 +244,14 @@ crimeData2$area <- ifelse(crimeData2$west==1, "West", ifelse(crimeData2$central=
 boxplot(crmrte_log~area, data=crimeData2)
 ```
 
-
 ## Percent of minority in 1980 (pctmin80)
 The scatter plot shows a weak linear relationship between log of crime rate and percent of minority.
 Low correlation coefficient (0.3) also confirms that.
 ```{r}
-plot(crimeData3$pctmin80, crimeData3$crmrte_log)
+plot(crimeData3$pctmin80, crimeData3$crmrte_log,main = "% Minority and Log crime rate" , 
+     xlab = "Log of Crime Rate" , ylab = "% minority in 1980" , col="royalblue1")
 cor(crimeData2$pctmin80, crimeData2$crmrte_log)
 ```
-
 
 ## Weekly wages
 There are nine variables related to weekly wages in the data. 
@@ -273,18 +265,19 @@ crimeData_temp1 <- crimeData2[,c("crmrte_log","wcon", "wtuc", "wtrd", "wfir", "w
 corr_DenUr <- cor(crimeData_temp1, use="pairwise")
 library(corrplot)
 corrplot(corr_DenUr, method="square", addCoef.col="white")
-plot(crimeData3$wfed, crimeData3$crmrte_log)
 ```
-
 
 ## Offense mix: face-to-face/other (mix)
 The scatter plot doesn't indicate a strong relationship between mix and log of crime rate.
 The weak correlation coefficient (-0.15) also confirms that.
 ```{r}
-plot(crimeData3$mix, crimeData3$crmrte_log)
+par(mfrow=c(1,2))
+plot(crimeData3$wfed, crimeData3$crmrte_log,main = "Weekly Fed and log crime rate",
+     xlab = "Log of Crime rate" , ylab = "Weekly Fed", col="red")
+plot(crimeData3$mix, crimeData3$crmrte_log,main = "Mix and log crime rate",
+     xlab="Log of crime rate",ylab="Mix", col="red")
 cor(crimeData2$mix, crimeData2$crmrte_log)
 ```
-
 
 ## Percent young male (pctymle)
 The scatter plot shows that the majority of counties have 5%-10% of young male. 
@@ -293,68 +286,43 @@ Log of crime rate doesn't seem to vary by the percent of young male based on the
 which is also evidented by 0.27 correlation coefficient.
 ```{r}
 par(mfrow=c(1,2))
-plot(crimeData3$pctymle, crimeData3$crmrte_log)
-plot(crimeData3$pctymle, crimeData3$crmrte_log)
-text(crimeData2$pctymle, crimeData2$crmrte_log, labels = crimeData2$county, cex=0.7, pos=3)
+plot(crimeData3$pctymle, crimeData3$crmrte_log,main = "% young M and Log crime rate",
+     xlab="Log of crime rate",ylab="% of young male", col="blue")
+plot(crimeData3$pctymle, crimeData3$crmrte_log,main = "% young M and Log crime rate",
+     xlab="Log of crime rate",ylab="% of young male", col="blue")
+text(crimeData2$pctymle, crimeData2$crmrte_log, labels = crimeData2$county, cex=0.7, pos=3,col = "red")
 cor(crimeData2$pctymle, crimeData2$crmrte_log)
 ```
-
-
-
-
 
 # Model Building 1
 ```{r}
 model1 <- lm(crmrte_log ~ prbarr+prbconv+prbpris+avgsen, data=crimeData2)
 model1$coefficients
-library(lmtest)
-#coeftest(model1, vcov = vcovHC)
-#plot(model1)
-#AIC(model1)
+#library(lmtest)#coeftest(model1, vcov = vcovHC)#plot(model1)#AIC(model1)
 ```
 Cook's distance for Observation 51, which is County 115, is close to 1. 
-
-
-
-
-
-
-
-
-
-
-
-
 
 # Model Building 2
 We put all the variables with correlation higher than 0.25 in the model except for those highly correlated with each other.
 ```{r}
-model2 <- lm(crmrte_log ~ prbarr+prbconv+polpc_log+density_log+west+pctmin80+wfed+pctymle, data=crimeData2)
+model2 <- lm(crmrte_log ~ prbarr+prbconv+polpc_log+density_log+west+pctmin80+wfed+
+               pctymle, data=crimeData2)
 model2$coefficients
-#coeftest(model2, vcov = vcovHC)
-#plot(model2)
-#AIC(model2)
+#coeftest(model2, vcov = vcovHC)#plot(model2)#AIC(model2)
 ```
-
-
-
-
 
 # Model Building 3
 ```{r}
-model3 <- lm(crmrte_log ~ prbarr+prbconv+prbpris+avgsen+polpc_log+density_log+taxpc+west+central+urban+pctmin80_2+wcon+wtuc+wtrd+wfir+wser+wmfg+wfed+wsta+wloc+mix+pctymle, data=crimeData2)
+model3 <- lm(crmrte_log ~ prbarr+prbconv+prbpris+avgsen+polpc_log+density_log+taxpc+west+
+               central+urban+pctmin80_2+wcon+wtuc+wtrd+wfir+wser+wmfg+wfed+wsta+wloc+mix+
+               pctymle, data=crimeData2)
 model3$coefficients
-#coeftest(model3, vcov = vcovHC)
-#plot(model3)
-#AIC(model3)
+#coeftest(model3, vcov = vcovHC)#plot(model3)#AIC(model3)
 ```
-
 
 # Model Display
 ```{r, results='asis'}
-#se.model1 = sqrt(diag(vcovHC(model1)))
-#se.model2 = sqrt(diag(vcovHC(model2)))
-#se.model3 = sqrt(diag(vcovHC(model3)))
+#se.model1 = sqrt(diag(vcovHC(model1)))#se.model2 = sqrt(diag(vcovHC(model2)))#se.model3 = sqrt(diag(vcovHC(model3)))
 library(stargazer)
 stargazer(model1, model2, model3, type = "latex", 
           title = "Linear Models Predicting Log of Crime Rate",
@@ -364,5 +332,114 @@ stargazer(model1, model2, model3, type = "latex",
           float=FALSE) 
 ```
 
-
 # Omitted Variables
+
+In the model 1 , we can represent true 
+
+ We are interested in the relationship between prbarr and prbconv and our “omitted” variables mentioned below.
+ 1.) Education
+ 2.) Percentage of people using drug
+ 3.) Percentage of people are married with kids
+ 4.) Percentage of people who own guns
+ 5.) Percentage of smart mobile penetration
+ 
+ Suppose our estimation model is represented by below equation , where A is prbarr and B is prbconv. 
+ $$\beta_0, \beta_1,\beta_2$$  is the interceipts and coefficients of A (prbarr) and B (prbconv) respectively.  We can represent the Population regression as 
+
+$$ Y (Population) = \beta_0+\beta_1A+\beta_2B $$
+
+$$ Y (Estimated) = \alpha_0+\alpha_1A+\alpha_2B $$
+$$ Y (Est Model1) = -2.92426013-2.09740014*prbarr -0.79654556*prbconv $$
+
+
+# Omitted variable 1: Education
+## Crime rate and Education are negatively correlated (NEGATIVE).
+We estimate a negative correlation between Crime Rate and Education based on following logic and reasoning. We estimate that higher the education within the population then they are less likely to commit a crime. Another reason could be that educated people tend to understand the law better and are more likely to respect the law and less likely to commit crime.
+
+##prbarr and Education are negatively correlated (NEGATIVE)
+We estimate that educated people are more likely to be aware of their rights and they are more likely to avoid being wrongfully arrested , hence reduced arrest rates. Also police are less likely to believe an educated person committed the crime. Finally more educated people are more familiar with investigation methods and hence are less likely to leave less clues if they had committed the crime , leading to less likelihood of arrests. Hence we estimate that education and prbarr are negatively correlated.
+$$\alpha_1 < 0$$
+this is positive bias , alpha1 (estimated) = -2.1 = beta1 (true) + positive
+$$\alpha(estimated)= -2.1 = \beta_1 (true)+(positive) $$
+True Coefficent is even more negative what is estimated and hence increase in statistical significance.
+
+##prbconv and Education are negatively correlated (NEGATIVE).
+We estimate that higher education people are likely to have have higher income.People with higher income are more likely to afford better lawyers and legal help and are less likely to be convicted. Overall positive bias. 
+$$\alpha_1 < 0$$
+This is positive bias , alpha (estimated) = -0.8 = beta (true) + positive
+$$\alpha(estimated)= -0.8 = \beta (true)+(positive) $$
+True Coefficent is even more negative what is estimated and hence increase in statistical significance.
+
+# Omitted variable 2: % of people using drug
+## Crime rate and % of people using drug are positively correlated (POSITIVE).
+We estimate a positive correlation between Crime Rate and % of people using drug based on following logic and reasoning. We estimate that people under the influence of drugs are more likely to commit a crime. 
+
+##prbarr and % of people using drug are positively correlated (POSITIVE).
+We estimate that drug addicts are easier to be found if they committed the crime leading to likelihood of higher arrests. Another reason could be that police are more likely to believe that drug addicts committed the crime.Finally the people consuming drugs are likely to consume drugs in groups and when police perform arrests they are likely to find other drug consuming people leading to higher arrests. Hence we estimate that % of people using drugs and prbarr are positively correlated.
+$$\alpha_1 < 0$$
+this is positive bias , alpha1 (estimated) = -2.1 = beta1 (true) + positive
+$$\alpha(estimated)= -2.1 = \beta_1 (true)+(positive) $$
+True Coefficent is even more negative what is estimated and hence increase in STATISTICAL significance.
+
+##prbconv and % of people using drug are positively correlated (POSITIVE).
+We estimate that % of people using drugs are likely to be spend all their money on drugs leading to poverty. People in poverty are less likely to get best legal help and are likely to have higher convition rates. Overall positive bias. 
+$$\alpha_1 < 0$$
+This is positive bias , alpha (estimated) = -0.8 = beta (true) + positive
+$$\alpha(estimated)= -0.8 = \beta (true)+(positive) $$
+True Coefficent is even more negative what is estimated and hence increase in STATISTICAL significance.
+
+# Omitted variable 3: % of people are married with kids
+## Crime rate and % of people are married with kids are negatively correlated (NEGATIVE).
+We estimate a negative correlation between Crime Rate and % of people are married with kids based on following logic and reasoning. We estimate that married couples with kids to have more considerations for family and thus less likely to commit a crime.
+
+##prbarr and % of people are married with kids are negatively correlated (NEGATIVE).
+We estimate that people married with kids are unlikely to come forward as a witness of a crime (in worry of wellbeing of their family) with any information leading to reduced probability of arrest.
+$$\alpha_1 < 0$$
+this is positive bias , alpha1 (estimated) = -2.1 = beta1 (true) + positive
+$$\alpha(estimated)= -2.1 = \beta_1 (true)+(positive) $$
+True Coefficent is even more negative what is estimated and hence increase in STATISTICAL significance.
+
+##prbconv and % of people are married with kids are negatively correlated (NEGATIVE).
+We estimate that % of people are married with kids are expected to have less convitions since the judges are likely to keep in consideration impact on the family and kids of the conviction. 
+$$\alpha_1 < 0$$
+This is positive bias , alpha (estimated) = -0.8 = beta (true) + positive
+$$\alpha(estimated)= -0.8 = \beta (true)+(positive) $$
+True Coefficent is even more negative what is estimated and hence increase in STATISTICAL significance.
+
+# Omitted variable 4: % of people who own guns
+## Crime rate and % of people who own guns are positively correlated (POSITIVE).
+We estimate a positive correlation between Crime Rate and % of people who own guns based on following logic and reasoning. With more people owning guns , small alterations / conflicts can lead to gun fight leading to higher rates of crime.
+
+##prbarr and % of people who own guns are positively correlated (POSITIVE).
+We estimate that people who are gun owners are more likely to involved in shooting related crimes. We estimate that since the guns and gun owners are more likley to easily tracked this can lead to higher probability of arrests.
+$$\alpha_1 < 0$$
+this is positive bias , alpha1 (estimated) = -2.1 = beta1 (true) + positive
+$$\alpha(estimated)= -2.1 = \beta_1 (true)+(positive) $$
+True Coefficent is even more negative what is estimated and hence increase in STATISTICAL significance.
+
+##prbconv and % of people who own guns are negatively correlated (NEGATIVE).
+We estimate that % of people who own guns are expected to richer than others and hence more likely to afford better lawyers and legal help. this can lead to less conviction rates. 
+$$\alpha_1 < 0$$
+This is positive bias , alpha (estimated) = -0.8 = beta (true) + negative
+$$\alpha(estimated)= -0.8 = \beta (true)+(negative) $$
+True Coefficent is less negative what is estimated and hence loose STATISTICAL significance.
+
+
+# Omitted variable 5: % of smart mobile penetration
+## Crime rate and % of smart mobile penetration are positively correlated (POSITIVE).
+We estimate a positive correlation between Crime Rate and % of smart mobile penetration based on following logic and reasoning. With higher smart phone users are more likely to use better communication methods via encrypted apps for committing the crime , hence increasing the likelihood of crime rates. Another possible reason can be that smart phones themselves are expensive devices and with higher smart phones in a county can lead to higher theft cases of smart phones itself , hence increasing crime rates.
+
+##prbarr and % of smart mobile penetration are negatively correlated (NEGATIVE).
+We estimate that people using smart phone are more likely to use encrypted apps on the smart phones for communication for committing the crime. Since these encrypted application are extremely difficult to track and hence leading to reduced arrest rates.
+$$\alpha_1 < 0$$
+this is less negative bias , alpha1 (estimated) = -2.1 = beta1 (true) + negative
+$$\alpha(estimated)= -2.1 = \beta_1 (true)+(negative) $$
+prbarr has less impact on the log of crime rate (lose statistical significance)
+
+##prbconv and % of smart mobile penetration are negatively correlated (NEGATIVE).
+We estimate that  smart phone has higher protection (such as iPhone), which are harder to crack by police , hence reducing the conviction rates. Also we estimate that not all police departments are good at dealing with digital evidence and hence leading to reduced conviction rates.
+
+$$\alpha_1 < 0$$
+this is less negative bias , alpha (estimated) = -0.8 = beta (true) + negative
+$$\alpha(estimated)= -0.8 = \beta (true)+(negative) $$
+prbconv has less impact on the log of crime rate (lose statistical significance).
