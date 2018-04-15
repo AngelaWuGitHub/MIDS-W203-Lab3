@@ -5,7 +5,6 @@ date: "March 22, 2018"
 output: pdf_document
 ---
 
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -17,12 +16,17 @@ library(sandwich)
 library(car)
 library(stargazer)
 ```
+
+
+
 # Introduction
 
 Crime is huge menace in the society, there have been many attempts in past to reduce crime rates within communities in North Carolina.
 Traditional politicians and conventional approach has assumed that tough on crime is an effective tool to curb crime. Being tough on crime is regularly misunderstood as longer and mandatory prison sentences. This misguided strategy can lead to state’s higher investment on prison infrastructure and also make laws which can promote mandatory prison sentences appear as effective crime fighting tool.
 The goal of this study is to uncover the real facts around the crime rates within North Carolina to develop effective state policy around to reduce crime rates. Key motivation of the report discover the real drivers and instruments which the policy makers can use and have meaningful impact on crime. Study intends to empower the state politicians , key legislative leaders with key facts which have been based on data and not on conventional  empirical narratives.
 Study intends to discover key variables which have major impact on crime rates in North Carolina . This information would be critical for voters to understand so that they can make an informed decision on a important election issue.
+
+
 
 # Data Cleansing
 
@@ -37,11 +41,13 @@ After reviewing the data, we found that all NA's are in 6 rows, so we removed th
 crimeData2 <- crimeData[complete.cases(crimeData),]
 ```
 
+
 Variable 'prbconv' was incorrectly displayed as a text field. We converted it to numermic.
 ```{r}
 crimeData2 <- transform(crimeData2, prbconv = as.numeric(as.character(prbconv)))
 summary(crimeData2$prbconv)
 ```
+
 
 Usually the probability variable should be bound between 0 and 1.
 However, there is one observation with 'prbarr' (probability of arrest) higher than 1, 
@@ -65,6 +71,8 @@ We converted it into decimals to be consistent with variable 'pctymle' (percent 
 ```{r}
 crimeData2$pctmin80_2 <- crimeData2$pctmin80/100
 ```
+
+
 The max value of variable 'wser' (weekly wage of service industry) is significantly higher than its third quartile.
 The histogram below shows that the max value (2177.068) is significantly higher than the rest of values.
 ```{r}
@@ -78,6 +86,7 @@ We noticed that most other weekly wage variables for County 185 are below the me
 You would expect that a richer county would have weekly wage in multiple industries to be higher than the average.
 So it's very unlikely for a county to have lower than average weekly wage on constructure, transportation, retail, finance, etc. 
 but extremely high weekly wage on the service industry.
+
 In addition, an average weekly wage of 2177.068 in 1987 is an unreasonable value.
 So we believed 2177.068 is erroneous.
 We removed this observation from the data.
@@ -85,8 +94,12 @@ We removed this observation from the data.
 crimeData2 <- crimeData2[which(crimeData2$wser<2000),]
 ```
 
+
+
 # Exploratory Data Analysis
+
 ## Crimes committed per person (crmrte)
+
 The distribution of crime rate is skewed to the right, so we considered taking the log of crime rate.
 After the log transformation, the distribution of crmrte_log is closer to normal.
 Semilogarithmic form is interpretable later in modeling: 
@@ -95,21 +108,25 @@ Our target variable is crmrte_log.
 ```{r}
 par(mfrow=c(1,2), oma=c(0, 0, 2, 0))
 par(mar=c(2, 2, 2, 2))
-hist(crimeData2$crmrte, main="",xlab = "Crime Rate" , col = "blue")
+hist(crimeData2$crmrte, main="",xlab = "Crime Rate" , col = "royalblue1")
 crimeData2$crmrte_log = log(crimeData2$crmrte)
 hist(crimeData2$crmrte_log, main="", xlab = "Log of Crime Rate", col = "royalblue1")
 mtext("Distributions of Crime Rate and Log Crime Rate", outer=TRUE, cex = 1.2, font=2)
 ```
 
 ## Probability of arrest (prbarr)
+
 The scatter plot of crmrte vs. prbarr on the left shows an exponential decay trend.
+
 In addition, the variation of crmrte decreases substantially as prbarr increases. 
 We took the log of crime rate, and then re-graph the scatter plot (shown on the right).
 The scatter plot of crmrte_log vs. prbarr indicates a more linear relationship 
 and the variation of crmrte_log does not vary as much with prbarr.
 The correlation coefficient further supports the transformation.  
+
 * The correlation between crmrte and prbarr is -0.41  
 * The correlation between crmrte_log and prbarr is -0.50  
+
 In addition, we noticed a leveraged data point in the graph, that's County 115. 
 County 115 has significantly higher probability of arrest than all other counties.
 If we removed County 115 from the data, the correlation coefficient reduced from -0.50 to -0.39.
@@ -134,12 +151,15 @@ cor(crimeData3$prbarr, crimeData3$crmrte_log)
 
 
 ## Probability of conviction (prbconv)
+
 Similar to prbarr, the scatter plot of crmrte vs. prbconv on the left shows an exponential decay trend.
+
 In addition, the variation of crmrte decreases substantially as prbconv increases. 
 We took the log of crime rate, and then re-graph the scatter plot (shown on the right).
 The scatter plot of crmrte_log vs. prbconv indicates a more linear relationship 
 and the variation of crmrte_log does not vary as much with prbconv
 The correlation coefficient further supports the transformation.  
+
 * The correlation between crmrte and prbarr is -0.37  
 * The correlation between crmrte_log and prbarr is -0.41
 ```{r}
@@ -155,6 +175,7 @@ cor(crimeData2$prbconv, crimeData2$crmrte_log)
 
 
 ## Probability of prison (prbpris) | Average sentence days (avgsen)
+
 Neither scatter plots below (prbpris vs. crmrte_log, avgsen vs. crmrte_log) shows obvious relationships.
 The correlation coefficients are only 0.03 and -0.08 respectively.
 ```{r}
@@ -170,10 +191,12 @@ cor(crimeData2$avgsen, crimeData2$crmrte_log)
 
 
 ## Police per capita (polpc)
+
 Similar to probabilities of arrest and conviction, 
 we observed a linear relationship between crime rate and policy per capita in the scatter plot below.
 The scatter plot also shows that County 115 has significantly higher police per capital than any other counties, 
 County 115 is a highly leveraged observation. 
+
 In addition, the variation of crmrte increases as prbconv increases, which justifies taking the log of crmrte.
 The correlation between crmrte_log and polpc (after removing County 115) is 0.45.   
 We also noticed that the distribution of polpc is highly skewed to the right, so we took the log of polpc.
@@ -198,6 +221,7 @@ cor(crimeData3$polpc_log, crimeData3$crmrte_log)
 
 
 ## People per square mile (density) | If in SMSA (urban)
+
 The histogram shows the distribution of density is highly skewed to the right, so we took the log of density.
 The scatter plot shows County 173 is highly leveraged as it has much lower population density than other counties.
 Removing County 173 significantly increases correlation coefficient from 0.49 to 0.68.
@@ -205,10 +229,12 @@ The correlation between density and crmrte_log (without County 173) is 0.63,
 which is lower than the correlation between density_log and crmrte_log (without County 173) of 0.68.
 This further confirms that log of density has a stronger linear relationship with log of crime rate than density does.   
 Urban is a binary variable. 
+
 The box plot shows that the the mean and interquartile range of density is significantly different 
 depending on whether county is in urban area or not.
 Log of density is highly correlated with urban with a correlation coefficient of 0.66. 
 When building the model, we should avoid putting both variables in the model for two reasons:  
+
 1. Adding the second variable doesn't explain much additional variation of the response variable   
 2. High correlation can greatly increase the standard errors of parameter estimates
 ```{r}
@@ -232,6 +258,7 @@ cor(crimeData4$urban, crimeData4$density_log)
 
 
 ## Tax revenue per capita (taxpc)
+
 The scatter plot indicates there may be a weak linear relationship between taxpc and crmrte_log.
 The histogram of taxpc is skewed to the right, so we considered taking the log of taxpc.
 However, the correlation between taxpc and crmrte_log (0.37) is slightly higher than the correlation between taxpc_log and crmrte_log (0.36).
@@ -240,13 +267,15 @@ par(mfrow=c(1,2))
 par(mar=c(4, 2, 2, 2))
 plot(crimeData3$taxpc, crimeData3$crmrte_log,main = "Tax per capita & Log Crime Rate" , 
      xlab = "Tax per capita" , ylab = "Log of Crime Rate" , col="royalblue1")
-hist(crimeData2$taxpc, main="Hist. of Tax Revenue",col = "red")
+hist(crimeData2$taxpc, main="Hist. of Tax Revenue",col = "royalblue1")
 crimeData2$taxpc_log <- log(crimeData2$taxpc)
 cor(crimeData2$taxpc, crimeData2$crmrte_log)
 cor(crimeData2$taxpc_log, crimeData2$crmrte_log)
 ```
 
+
 ## If in western/central North Carolina
+
 We created a variable, area, to categorize the area counties reside in. 
 Area takes three values: West, Central, and Other.
 The box plot shows that the mean and interquartile range of crmrte_log is very similar between Central and Other.
@@ -257,16 +286,23 @@ crimeData2$area <- ifelse(crimeData2$west==1, "West", ifelse(crimeData2$central=
 boxplot(crmrte_log~area, data=crimeData2)
 ```
 
+
 ## Percent of minority in 1980 (pctmin80)
+
 The scatter plot shows a weak linear relationship between log of crime rate and percent of minority.
 Low correlation coefficient (0.3) also confirms that.
+Also note that the percent of minority is highly negatively correlated with the indicator "west".
+This indicates west counties have lower percentage of minority.
 ```{r}
-plot(crimeData3$pctmin80, crimeData3$crmrte_log,main = "% Minority & Log crime rate" , 
+plot(crimeData3$pctmin80_2, crimeData3$crmrte_log,main = "% Minority & Log crime rate" , 
      xlab = "% minority in 1980" , ylab = "Log of Crime Rate" , col="royalblue1")
-cor(crimeData2$pctmin80, crimeData2$crmrte_log)
+cor(crimeData2$pctmin80_2, crimeData2$crmrte_log)
+cor(crimeData2$pctmin80_2, crimeData2$west)
 ```
 
+
 ## Weekly wages
+
 There are nine variables related to weekly wages in the data. 
 They represent weekly wages in different industries. 
 As the correlation matrix shows, most of the weekly wages variables are highly correlated except for wsta.
@@ -279,16 +315,20 @@ corr_DenUr <- cor(crimeData_temp1, use="pairwise")
 corrplot(corr_DenUr, method="square", addCoef.col="white")
 ```
 
+
 ## Offense mix: face-to-face/other (mix)
+
 The scatter plot doesn't indicate a strong relationship between mix and log of crime rate.
 The weak correlation coefficient (-0.15) also confirms that.
 ```{r}
 plot(crimeData3$mix, crimeData3$crmrte_log,main = "Mix & Log crime rate",
-     xlab="Log of crime rate",ylab="Mix", col="red")
+     xlab="Log of crime rate",ylab="Mix", col="royalblue1")
 cor(crimeData2$mix, crimeData2$crmrte_log)
 ```
 
+
 ## Percent young male (pctymle)
+
 The scatter plot shows that the majority of counties have 5%-10% of young male. 
 County 133 has significantly higher male percentage than the rest of counties.
 Log of crime rate doesn't seem to vary by the percent of young male based on the scatter plot, 
@@ -306,12 +346,12 @@ cor(crimeData2$pctymle, crimeData2$crmrte_log)
 
 
 # Model Building 1
+
 In the first model, we only include the four key variables we are interested in. They are probability of arrest, probability of conviction, probability of prison, average sentences. Based on the EDA above, we take the log of crime rate as our response variable and didn't find any transformation to be necessary for the four explanatory variables.
 $$\log{(\text{Crime Rate})} = \beta_0 + \beta_1 \cdot (\text{prbarr}) + \beta_2 \cdot (\text{prbconv}) 
 + \beta_3 \cdot (\text{prbpris}) + \beta_4 \cdot (\text{avgsen})$$
 ```{r}
 model1 <- lm(crmrte_log ~ prbarr+prbconv+prbpris+avgsen, data=crimeData2)
-model1$coefficients
 coeftest(model1, vcov = vcovHC)
 par(mfrow=c(2,2))
 par(mar=c(2, 2, 2, 2))
@@ -321,7 +361,9 @@ AIC(model1)
 Cook's distance for Observation 51, which is County 115, is close to 1. 
 
 
+
 # Model Building 2
+
 Based on EDA, we concludes that the following variables are highly correlated with the response variable,
 with correlation coefficient greater than 0.3:  
 prbarr, prbconv, density_log, west, and wfed.  
@@ -329,8 +371,10 @@ The variable "urban" and a few other weekly wages variables are excluded from th
 The pairwise correlation table shows that log of density is highly correlated with federal employee wages. 
 Since the proportion of federal employees in a county is small, this variable may not represent the wage characteristics of a county.
 So we remove federal employee wages from the model.
+
 $$\log{(\text{Crime Rate})} = \beta_0 + \beta_1 \cdot (\text{prbarr}) + \beta_2 \cdot (\text{prbconv}) 
 + \beta_3 \cdot (\text{log density}) + \beta_4 \cdot (\text{west})$$
+
 Since the 79th observation (County 173) has Cook's distance greater than 1, we removed this observation from the model to eliminate undue influence.
 ```{r}
 par(mfrow=c(1,2))
@@ -340,24 +384,29 @@ corr_Model2 <- cor(crimeData_temp2, use="pairwise")
 corrplot(corr_Model2, method="square", addCoef.col="white")
 
 model2 <- lm(crmrte_log ~ prbarr+prbconv+density_log+west, data=crimeData2)
-model2$coefficients
-coeftest(model2, vcov = vcovHC)
 plot(model2, which=5)
 
 crimeData5 <- crimeData2[which(crimeData2$county!=173),]
 
 model2 <- lm(crmrte_log ~ prbarr+prbconv+density_log+west, data=crimeData5)
-model2$coefficients
 coeftest(model2, vcov = vcovHC)
-par(mfrow=c(2,2))
+par(mfrow=c(1,3))
 par(mar=c(2, 2, 2, 2))
-plot(model2)
-AIC(model2)
+plot(model2, which=1)
+plot(model2, which=3)
+plot(model2, which=5)
 vif(model2)
 bptest(model2)
 ncvTest(model2)
+par(mfrow=c(1,2))
+hist(rstudent(model2), main="Histogram of Studentized Residuals", breaks=10, freq=FALSE)
+curve(dnorm(x, mean=0, sd=1), col="red", lwd=2, add=TRUE)
+qqPlot(rstudent(model2), main="QQ-Plot Studentized Residuals")
+AIC(model2)
 ```
-## Assessment of the CLM assumptions
+
+## Assessment of the CLM assumptions 
+
 * CLM 1: A linear model  
     + The model is specified such that the dependent variable is a linear function of the explanatory variables.  
     + This assumption is satisfied.  
@@ -374,25 +423,46 @@ ncvTest(model2)
     + In the Residuals vs. Leverage plot, no observations have Cook's distance greater than 1.   
     + This assumption is satistified.  
 * CLM 5: Homoscedasticity  
-    + 
-
+    + In both Residuals vs. Fitted plot and Scale-Location plot, the variance of residuals slightly increase then decrease
+    when fitted values are between -4.5 and -2.5.  
+    + Breusch-Pagan test shows significant p-value while the Score-test shows insignificant p-value.
+    These tests are producing mixed evidence of homoscedasticity.  
+    + This assumption is likely satisfied.  
+    + If this assumption is not satisfied, the usual formulas for standard errors are inaccurate. 
+    Heteroskedasticity-robust standard errors should be used to test the significance of the parameter estimates.  
 * CLM 6: Normality of residuals  
+    + The histogram of studentized residuals is fairly normal ditributed albeit a bit light in the right tail.  
+    + Q-Q plot shows most data points in the right tail are below the diagonal line, which also confirms a light right tail. 
+    Overall, Q-Q plot doesn't deviate significantly from normality and all data points are within the confidence interval.  
+    + This assumption is satisfied.  
 
 ## Evaluation of statistical and pratical significance
 
+All four explanatory variables are statistically significant.  
+Model 2 shows:
+
+* A 1 percent point increase in the probability of arrest decreases crime rate by 1.062%, given that all other variables remain constant.  
+* A 1 percent point increase in the probability of conviction decreases crime rate by 0.58%, given that all other variables remain constant.  
+* Density is a geographic control variable. A 1% increase in the density increases crime rate by 0.335%, given that all other variables remain constant.  
+* Indicator "west" is also a geographic control variable. Western counties have 36.4% less crime rate, given that all other variables remain constant. 
+
+All the parameter estimates are pratically significant. 
+
+Adding the two control variables improves the model. AIC decreases from 102 (Model 1) to 45 (Model 2).
+
+
 
 # Model Building 3
-For this model, we add all the variables to the model.
+
+For this model, we include all the variables that are not highly correlated.
 ```{r}
-model3 <- lm(crmrte_log ~ prbarr+prbconv+prbpris+avgsen+polpc_log+density_log+taxpc+west+
-               central+urban+pctmin80_2+wcon+wtuc+wtrd+wfir+wser+wmfg+wfed+wsta+wloc+mix+
-               pctymle, data=crimeData2)
-model3$coefficients
+model3 <- lm(crmrte_log ~ prbarr+prbconv+prbpris+avgsen+polpc_log+density_log+taxpc+west+central+mix+pctymle, data=crimeData2)
 coeftest(model3, vcov = vcovHC)
 par(mfrow=c(2,2))
 par(mar=c(2, 2, 2, 2))
 plot(model3)
 ```
+
 
 
 # Model Display
@@ -407,6 +477,14 @@ stargazer(model1, model2, model3, type = "latex",
           star.cutoffs = c(0.05, 0.01, 0.001),
           float=FALSE) 
 ```
+The parameter estimates for the two key variables of interest are relatively robust.
+
+* In all three models, the parameter estimate for the probability of arrest are negative and statistically significant.
+The parameter estimates range from -2.10 to -1.06. 
+The difference is mostly caused by the geographic control variables in the model.  
+* In all three models, the parameter estimate for the probability of conviction are negative and statistically significant. 
+The parameter estimates range from -0.80 to -0.51.
+The difference is mostly caused by the geographic control variables in the model.  
 
 
 
@@ -523,5 +601,8 @@ prbconv has less impact on the log of crime rate (lose statistical significance)
 
 
 # Conclusion
-average sentencing doesn't
-policy suggestion: instead of mandatory prison sentences, we suggest community programs to help educate outlaws.
+Our models show that an increase in the probability of arrest and/or an increase in the proability of conviction reduces the crime rate.
+On the other hand, there are no statistically significance relationships between the severity of punishment (the probability of prison and average sentences) and crime rate. 
+This conclusion is robust and is not sensitive to modeling specifications. 
+We believe the key to reduce crime rates is to be effective in apprehending criminals.
+We recommend community service as part of the punishment to help rehabilitate criminals rather than increasing their sentences. 
