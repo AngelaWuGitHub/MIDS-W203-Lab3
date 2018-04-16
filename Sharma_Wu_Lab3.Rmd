@@ -7,28 +7,24 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-```
-
-```{r}
 library(corrplot)
 library(lmtest)
 library(sandwich)
 library(car)
 library(stargazer)
 library(effsize)
+library(olsrr)
 ```
 
+```{r}
 
+```
 
 # Introduction
 
-Crime is huge menace in the society, there have been many attempts in past to reduce crime rates within communities in North Carolina.
-Traditional politicians and conventional approach has assumed that tough on crime is an effective tool to curb crime. Being tough on crime is regularly misunderstood as longer and mandatory prison sentences. This misguided strategy can lead to state’s higher investment on prison infrastructure and also make laws which can promote mandatory prison sentences appear as effective crime fighting tool.
-The goal of this study is to uncover the real facts around the crime rates within North Carolina to develop effective state policy around to reduce crime rates. Key motivation of the report discover the real drivers and instruments which the policy makers can use and have meaningful impact on crime. Study intends to empower the state politicians , key legislative leaders with key facts which have been based on data and not on conventional  empirical narratives.  
-Study intends to discover key variables which have major impact on crime rates in North Carolina . This information would be critical for voters to understand so that they can make an informed decision on a important election issue.  
+Crime is huge menace in the society, there have been many attempts in past to reduce crime rates within communities in North Carolina. Traditional politicians and conventional approach has assumed that tough on crime is an effective tool to curb crime. Being tough on crime is regularly misunderstood as longer and mandatory prison sentences. This misguided strategy can lead to state’s higher investment on prison infrastructure and also make laws which can promote mandatory prison sentences appear as effective crime fighting tool. The goal of this study is to uncover the real facts around the crime rates within North Carolina to develop effective state policy around to reduce crime rates. Key motivation of the report discover the real drivers and instruments which the policy makers can use and have meaningful impact on crime. Study intends to empower the state politicians , key legislative leaders with key facts which have been based on data and not on conventional empirical narratives.
+Study intends to discover key variables which have major impact on crime rates in North Carolina . This information would be critical for voters to understand so that they can make an informed decision on a important election issue.
 The main research question we want to answer is whether an increase in effective policing and conviction reduces crime rate.
-
-
 
 # Data Cleansing
 
@@ -43,14 +39,11 @@ After reviewing the data, we found that all NA's are in 6 rows, so we removed th
 crimeData2 <- crimeData[complete.cases(crimeData),]
 ```
 
-
 Variable 'prbconv' was incorrectly displayed as a text field. We converted it to numermic.
 ```{r}
 crimeData2 <- transform(crimeData2, prbconv = as.numeric(as.character(prbconv)))
 summary(crimeData2$prbconv)
 ```
-
-
 Usually the probability variable should be bound between 0 and 1.
 However, there is one observation with 'prbarr' (probability of arrest) higher than 1, 
 and 10 observations with 'prbconv' (probability of conviction) higher than 1.
@@ -67,14 +60,11 @@ one person who is convicted of multiple crimes but only arrested once.
 Without further information on the variables, we could not conclude whether these values are invalid.
 So we left those observations in the data.
 
-
 Variable 'pctmin80' (percent of minority in 1980) is expressed as percentages. 
 We converted it into decimals to be consistent with variable 'pctymle' (percent of young male).
 ```{r}
 crimeData2$pctmin80_2 <- crimeData2$pctmin80/100
 ```
-
-
 The max value of variable 'wser' (weekly wage of service industry) is significantly higher than its third quartile.
 The histogram below shows that the max value (2177.068) is significantly higher than the rest of values.
 ```{r}
@@ -95,8 +85,6 @@ We removed this observation from the data.
 ```{r}
 crimeData2 <- crimeData2[which(crimeData2$wser<2000),]
 ```
-
-
 
 # Exploratory Data Analysis
 
@@ -288,7 +276,6 @@ crimeData2$area <- ifelse(crimeData2$west==1, "West", ifelse(crimeData2$central=
 boxplot(crmrte_log~area, data=crimeData2)
 ```
 
-
 ## Percent of minority in 1980 (pctmin80)
 
 The scatter plot shows a weak linear relationship between log of crime rate and percent of minority.
@@ -301,7 +288,6 @@ plot(crimeData3$pctmin80_2, crimeData3$crmrte_log,main = "% Minority & Log crime
 cor(crimeData2$pctmin80_2, crimeData2$crmrte_log)
 cor(crimeData2$pctmin80_2, crimeData2$west)
 ```
-
 
 ## Weekly wages
 
@@ -317,7 +303,6 @@ corr_DenUr <- cor(crimeData_temp1, use="pairwise")
 corrplot(corr_DenUr, method="square", addCoef.col="white")
 ```
 
-
 ## Offense mix: face-to-face/other (mix)
 
 The scatter plot doesn't indicate a strong relationship between mix and log of crime rate.
@@ -327,7 +312,6 @@ plot(crimeData3$mix, crimeData3$crmrte_log,main = "Mix & Log crime rate",
      xlab="Log of crime rate",ylab="Mix", col="royalblue1")
 cor(crimeData2$mix, crimeData2$crmrte_log)
 ```
-
 
 ## Percent young male (pctymle)
 
@@ -345,8 +329,6 @@ text(crimeData2$pctymle, crimeData2$crmrte_log, labels = crimeData2$county, cex=
 cor(crimeData2$pctymle, crimeData2$crmrte_log)
 ```
 
-
-
 # Model Building 1
 
 In the first model, we only include the four key variables we are interested in. They are probability of arrest, probability of conviction, probability of prison, average sentences. Based on the EDA above, we take the log of crime rate as our response variable and didn't find any transformation to be necessary for the four explanatory variables.
@@ -354,6 +336,7 @@ $$\log{(\text{Crime Rate})} = \beta_0 + \beta_1 \cdot (\text{prbarr}) + \beta_2 
 + \beta_3 \cdot (\text{prbpris}) + \beta_4 \cdot (\text{avgsen})$$
 ```{r}
 model1 <- lm(crmrte_log ~ prbarr+prbconv+prbpris+avgsen, data=crimeData2)
+summary(model1)
 coeftest(model1, vcov = vcovHC)
 par(mfrow=c(2,2))
 par(mar=c(2, 2, 2, 2))
@@ -365,9 +348,7 @@ par(mfrow=c(1,2))
 hist(rstudent(model1), main="Histogram of Studentized Residuals", breaks=10, freq=FALSE)
 curve(dnorm(x, mean=0, sd=1), col="red", lwd=2, add=TRUE)
 qqPlot(rstudent(model1), main="QQ-Plot Studentized Residuals")
-step(model1)
 AIC(model1)
-
 ```
 * CLM 1: A linear model  
     + The model is specified such that the dependent variable is a linear function of the explanatory variables.This assumption is satisfied.  
@@ -389,12 +370,11 @@ AIC(model1)
 
 ## Evaluation of statistical and pratical significance
 
+Model 1 shows:
 
-
-
-
-
-
+* A 1 percent point increase in the probability of arrest decreases crime rate by 2.09 %, given that all other variables remain constant.  
+* A 1 percent point increase in the probability of conviction decreases crime rate by 0.79 %, given that all other variables remain constant.  
+AIC for model 1 is 102.
 
 # Model Building 2
 
@@ -479,23 +459,24 @@ Model 2 shows:
 * A 1 percent point increase in the probability of conviction decreases crime rate by 0.58%, given that all other variables remain constant.  
 * Density is a geographic control variable. A 1% increase in the density increases crime rate by 0.335%, given that all other variables remain constant.  
 * Indicator "west" is also a geographic control variable. Western counties have 36.4% less crime rate, given that all other variables remain constant. 
-
 All the parameter estimates are practically significant. 
-
 Adding the two control variables improves the model. AIC decreases from 102 (Model 1) to 45 (Model 2).
-
-
 
 # Model Building 3
 
 For this model, we include all the variables that are not highly correlated.
 ```{r}
+
+crimeData6 <- crimeData2[which(crimeData2$county!=173),]
+
+
 model3 <- lm(crmrte_log ~ prbarr+prbconv+prbpris+avgsen+polpc_log+density_log+taxpc
-             +west+central+mix+pctymle, data=crimeData2)
+             +west+central+mix+pctymle, data=crimeData6)
 coeftest(model3, vcov = vcovHC)
 par(mfrow=c(2,2))
 par(mar=c(2, 2, 2, 2))
 plot(model3)
+#ols_plot_diagnostics(model3)
 vif(model3)
 bptest(model3)
 ncvTest(model3)
@@ -514,11 +495,11 @@ AIC(model3)
     + The VIFs for all variables in the model are all less than 2, which suggests there are no high correlation among them. This assumption is satisfied.  
 * CLM 4: Zero-conditional mean  
     + The red spline curve in the Residuals vs. Fitted plot is mostly flat except for the end points where the number of observations is small.  
-    + In the Residuals vs. Leverage plot, no observations have Cook's distance greater than 1.   This assumption is satistified.  
+    + In the Residuals vs. Leverage plot, there is 1 observations have Cook's distance greater than 1.   This assumption is satistified.  
 * CLM 5: Homoscedasticity  
     + In both Residuals vs. Fitted plot and Scale-Location plot, the variance of residuals remain flat with minor decrease and eventually increasing. Most points are
     when fitted values are between -5.0 and -2.5.  
-    + Breusch-Pagan test shows p-value is 0.22 implies homoscedascity and we fail to reject the null hypothesis.
+    + Breusch-Pagan test shows p-value is 0.15 implies homoscedascity and we fail to reject the null hypothesis.
     These tests are producing mixed evidence of homoscedasticity. This assumption is likely satisfied.  
 * CLM 6: Normality of residuals  
     + The histogram of studentized residuals is fairly normal ditributed albeit a bit light in the right tail.  
@@ -529,13 +510,9 @@ AIC(model3)
 
 Model 3 shows:
 
-* A 1 percent point increase in the probability of arrest decreases crime rate by 1.77 %, given that all other variables remain constant.  
-* A 1 percent point increase in the probability of conviction decreases crime rate by 0.64 %, given that all other variables remain constant. 
-
-Adding the these control variables improves the model. AIC decreases from 102 (Model 1) to 45 (Model 2) to 31 (Model 3).
-However, some of the variables are not statistically significant. 
-
-
+* A 1 percent point increase in the probability of arrest decreases crime rate by 1.41 %, given that all other variables remain constant.  
+* A 1 percent point increase in the probability of conviction decreases crime rate by 0.54 %, given that all other variables remain constant.  
+Adding the these control variables improves the model. AIC decreases from 102 (Model 1) to 45 (Model 2) to 13 (Model 3)
 
 # Model Display
 ```{r, results='asis'}
@@ -673,9 +650,4 @@ prbconv has less impact on the log of crime rate (lose statistical significance)
 
 
 # Conclusion
-Our models show that an increase in the probability of arrest and/or an increase in the proability of conviction reduces the crime rate.
-On the other hand, there are no statistically significance relationships between the severity of punishment (the probability of prison and average sentences) and crime rate. 
-This conclusion is robust and is not sensitive to modeling specifications. 
-We believe the key to reduce crime rates is to be effective in apprehending criminals.
-We recommend community service as part of the punishment to help rehabilitate criminals rather than increasing their sentences. 
-We recommend increasing investment in effective policing and public infrustrcture for conviction and reducing spending on prison expansion. 
+Our models show that an increase in the probability of arrest and/or an increase in the proability of conviction reduces the crime rate. On the other hand, there are no statistically significance relationships between the severity of punishment (the probability of prison and average sentences) and crime rate. This conclusion is robust and is not sensitive to modeling specifications. We believe the key to reduce crime rates is to be effective in apprehending criminals. We recommend community service as part of the punishment to help rehabilitate criminals rather than increasing their sentences. We recommend increasing investment in effective policing and public infrustrcture for conviction and reducing spending on prison expansion.
