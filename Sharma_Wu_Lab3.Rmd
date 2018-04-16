@@ -24,8 +24,9 @@ library(effsize)
 
 Crime is huge menace in the society, there have been many attempts in past to reduce crime rates within communities in North Carolina.
 Traditional politicians and conventional approach has assumed that tough on crime is an effective tool to curb crime. Being tough on crime is regularly misunderstood as longer and mandatory prison sentences. This misguided strategy can lead to state’s higher investment on prison infrastructure and also make laws which can promote mandatory prison sentences appear as effective crime fighting tool.
-The goal of this study is to uncover the real facts around the crime rates within North Carolina to develop effective state policy around to reduce crime rates. Key motivation of the report discover the real drivers and instruments which the policy makers can use and have meaningful impact on crime. Study intends to empower the state politicians , key legislative leaders with key facts which have been based on data and not on conventional  empirical narratives.
-Study intends to discover key variables which have major impact on crime rates in North Carolina . This information would be critical for voters to understand so that they can make an informed decision on a important election issue.
+The goal of this study is to uncover the real facts around the crime rates within North Carolina to develop effective state policy around to reduce crime rates. Key motivation of the report discover the real drivers and instruments which the policy makers can use and have meaningful impact on crime. Study intends to empower the state politicians , key legislative leaders with key facts which have been based on data and not on conventional  empirical narratives.  
+Study intends to discover key variables which have major impact on crime rates in North Carolina . This information would be critical for voters to understand so that they can make an informed decision on a important election issue.  
+The main research question we want to answer is whether an increase in effective policing and conviction reduces crime rate.
 
 
 
@@ -388,16 +389,10 @@ AIC(model1)
 
 ## Evaluation of statistical and pratical significance
 
-Model 3 shows:
-
-* A 1 percent point increase in the probability of arrest decreases crime rate by 1.77 %, given that all other variables remain constant.  
-* A 1 percent point increase in the probability of conviction decreases crime rate by 0.64 %, given that all other variables remain constant.  
-Adding the these control variables improves the model. AIC decreases from 102 (Model 1) to 45 (Model 2) to 31 (Model 3)
-    
 
 
 
-Cook's distance for Observation 51, which is County 115, is close to 1. 
+
 
 
 
@@ -508,13 +503,7 @@ par(mfrow=c(1,2))
 hist(rstudent(model3), main="Histogram of Studentized Residuals", breaks=10, freq=FALSE)
 curve(dnorm(x, mean=0, sd=1), col="red", lwd=2, add=TRUE)
 qqPlot(rstudent(model3), main="QQ-Plot Studentized Residuals")
-step(model3)
 AIC(model3)
-fit <- aov(prbarr ~ taxpc, data=crimeData2)
-fit <- aov(prbarr ~ taxpc, data=crimeData2)
-summary(fit)
-cohen.d(crimeData2$prbconv , crimeData2$prbarr, pooled=TRUE, paired=FALSE, na.rm=FALSE, 
-    hedges.correction = FALSE, conf.level = 0.95, noncentral = FALSE)
 ```
 * CLM 1: A linear model  
     + The model is specified such that the dependent variable is a linear function of the explanatory variables.  This assumption is satisfied.  
@@ -541,8 +530,12 @@ cohen.d(crimeData2$prbconv , crimeData2$prbarr, pooled=TRUE, paired=FALSE, na.rm
 Model 3 shows:
 
 * A 1 percent point increase in the probability of arrest decreases crime rate by 1.77 %, given that all other variables remain constant.  
-* A 1 percent point increase in the probability of conviction decreases crime rate by 0.64 %, given that all other variables remain constant.  
-Adding the these control variables improves the model. AIC decreases from 102 (Model 1) to 45 (Model 2) to 31 (Model 3)
+* A 1 percent point increase in the probability of conviction decreases crime rate by 0.64 %, given that all other variables remain constant. 
+
+Adding the these control variables improves the model. AIC decreases from 102 (Model 1) to 45 (Model 2) to 31 (Model 3).
+However, some of the variables are not statistically significant. 
+
+
 
 # Model Display
 ```{r, results='asis'}
@@ -685,3 +678,4 @@ On the other hand, there are no statistically significance relationships between
 This conclusion is robust and is not sensitive to modeling specifications. 
 We believe the key to reduce crime rates is to be effective in apprehending criminals.
 We recommend community service as part of the punishment to help rehabilitate criminals rather than increasing their sentences. 
+We recommend increasing investment in effective policing and public infrustrcture for conviction and reducing spending on prison expansion. 
