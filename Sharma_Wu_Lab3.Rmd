@@ -336,7 +336,6 @@ $$\log{(\text{Crime Rate})} = \beta_0 + \beta_1 \cdot (\text{prbarr}) + \beta_2 
 + \beta_3 \cdot (\text{prbpris}) + \beta_4 \cdot (\text{avgsen})$$
 ```{r}
 model1 <- lm(crmrte_log ~ prbarr+prbconv+prbpris+avgsen, data=crimeData2)
-summary(model1)
 coeftest(model1, vcov = vcovHC)
 par(mfrow=c(2,2))
 par(mar=c(2, 2, 2, 2))
@@ -358,23 +357,28 @@ AIC(model1)
     + R would alert us if there is perfect multicollinearity among explanatory variables.  
     + The VIFs for all variables in the model are all less than 2, which suggests there are no high correlation among them. This assumption is satisfied.  
 * CLM 4: Zero-conditional mean  
-    + The red spline curve in the Residuals vs. Fitted plot is mostly flat except for the end points where the number of observations is small.  
-    + In the Residuals vs. Leverage plot, no observations have Cook's distance greater than 1.This assumption is satistified.  
+    + The red spline curve in the Residuals vs. Fitted plot is Not flat.    
+    + This assumption is not satisfied. We should consider transform explanatory variables or add more variables to the model (see Model 2).    
 * CLM 5: Homoscedasticity  
-    + In both Residuals vs. Fitted plot and Scale-Location plot, the variance of residuals is curve.
-    + Breusch-Pagan test shows p-value is 0.451 implies homoscedascity and we fail to reject the null hypothesis.This assumption is likely satisfied.  
+    + In both Residuals vs. Fitted plot and Scale-Location plot, the variance of residuals is not constant.
+    + Both Breusch-Pagan test and the Score test have p-value greater than 0.451, which suggests we do not reject the null hypothesis of homoscedasticity.  
+    + This assumption is likely satisfied.  
 * CLM 6: Normality of residuals  
-    + The histogram of studentized residuals is fairly normal ditributed albeit a bit light in the right tail.  
-    + Q-Q plot shows most data points in the right tail are below the diagonal line, which also confirms a light right tail. 
-    Overall, Q-Q plot doesn't deviate significantly from normality and most data points are within the confidence interval. This assumption is satisfied.  
+    + The histogram of studentized residuals is fairly normal ditributed albeit a bit longer in the left tail.  
+    + Q-Q plot shows most data points in the left tail are below the diagonal line, which also confirms a longer left tail.  
+    Overall, Q-Q plot doesn't deviate significantly from normality and most data points are within the confidence interval.  
+    + This assumption is satisfied.  
 
 ## Evaluation of statistical and pratical significance
 
 Model 1 shows:
 
 * A 1 percent point increase in the probability of arrest decreases crime rate by 2.09 %, given that all other variables remain constant.  
-* A 1 percent point increase in the probability of conviction decreases crime rate by 0.79 %, given that all other variables remain constant.  
+* A 1 percent point increase in the probability of conviction decreases crime rate by 0.79 %, given that all other variables remain constant. 
+
 AIC for model 1 is 102.
+
+
 
 # Model Building 2
 
@@ -459,19 +463,18 @@ Model 2 shows:
 * A 1 percent point increase in the probability of conviction decreases crime rate by 0.58%, given that all other variables remain constant.  
 * Density is a geographic control variable. A 1% increase in the density increases crime rate by 0.335%, given that all other variables remain constant.  
 * Indicator "west" is also a geographic control variable. Western counties have 36.4% less crime rate, given that all other variables remain constant. 
+
 All the parameter estimates are practically significant. 
 Adding the two control variables improves the model. AIC decreases from 102 (Model 1) to 45 (Model 2).
 
+
+
 # Model Building 3
 
-For this model, we include all the variables that are not highly correlated.
+For this model, we include all the variables that are not highly correlated. We continue to remove County 173 for this model.
 ```{r}
-
-crimeData6 <- crimeData2[which(crimeData2$county!=173),]
-
-
 model3 <- lm(crmrte_log ~ prbarr+prbconv+prbpris+avgsen+polpc_log+density_log+taxpc
-             +west+central+mix+pctymle, data=crimeData6)
+             +west+central+mix+pctymle, data=crimeData5)
 coeftest(model3, vcov = vcovHC)
 par(mfrow=c(2,2))
 par(mar=c(2, 2, 2, 2))
@@ -494,17 +497,18 @@ AIC(model3)
     + R would alert us if there is perfect multicollinearity among explanatory variables.  
     + The VIFs for all variables in the model are all less than 2, which suggests there are no high correlation among them. This assumption is satisfied.  
 * CLM 4: Zero-conditional mean  
-    + The red spline curve in the Residuals vs. Fitted plot is mostly flat except for the end points where the number of observations is small.  
-    + In the Residuals vs. Leverage plot, there is 1 observations have Cook's distance greater than 1.   This assumption is satistified.  
+    + The red spline curve in the Residuals vs. Fitted plot is mostly flat.  
+    + In the Residuals vs. Leverage plot, there is no observations with Cook's distance greater than 1.  
+    + This assumption is satistified.  
 * CLM 5: Homoscedasticity  
-    + In both Residuals vs. Fitted plot and Scale-Location plot, the variance of residuals remain flat with minor decrease and eventually increasing. Most points are
-    when fitted values are between -5.0 and -2.5.  
-    + Breusch-Pagan test shows p-value is 0.15 implies homoscedascity and we fail to reject the null hypothesis.
-    These tests are producing mixed evidence of homoscedasticity. This assumption is likely satisfied.  
+    + In both Residuals vs. Fitted plot and Scale-Location plot, the variance of residuals remain relatively constant.  
+    + Both Breusch-Pagan test the Score test have p-value greater than 0.05, which suggests that we do not reject the null hypothesis of homoscedasticity.  
+    + This assumption is likely satisfied.  
 * CLM 6: Normality of residuals  
-    + The histogram of studentized residuals is fairly normal ditributed albeit a bit light in the right tail.  
-    + Q-Q plot shows most data points in the right tail are below the diagonal line, which also confirms a light right tail. 
-    Overall, Q-Q plot doesn't deviate significantly from normality and most data points are within the confidence interval. This assumption is satisfied.  
+    + The histogram of studentized residuals is fairly normal ditributed albeit a bit longer left tail.  
+    + Q-Q plot shows most data points in the left tail are below the diagonal line, which also confirms a longer left tail.  
+    + Overall, Q-Q plot doesn't deviate significantly from normality and most data points are within the confidence interval. 
+    + This assumption is satisfied.  
 
 ## Evaluation of statistical and pratical significance
 
